@@ -1,5 +1,14 @@
 [
   "packet-easy",
   "packet-medium",
-  "packet-hard"
+  "packet-hard",
+  "packet-brands",
+  "packet-boardgames",
+  "packet-slang",
+  "packet-boomer",
+  "packet-spicy",
+  "packet-minecraft",
+  "packet-videogames",
+  "packet-memes",
+  "packet-instruments"
 ]

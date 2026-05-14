@@ -1,15 +1,27 @@
 const COLORS = [
   { hex: '#34c759', dark: '#1a6b33' },
+  { hex: '#30d158', dark: '#1a7040' },
   { hex: '#ff9f0a', dark: '#8a5200' },
+  { hex: '#ffd60a', dark: '#7a6200' },
   { hex: '#ff3b30', dark: '#b01208' },
+  { hex: '#ff6961', dark: '#9e1f1a' },
   { hex: '#0071e3', dark: '#004a99' },
-  { hex: '#af52de', dark: '#6b2090' },
-  { hex: '#ff2d55', dark: '#99001e' },
   { hex: '#5ac8fa', dark: '#006d99' },
+  { hex: '#af52de', dark: '#6b2090' },
+  { hex: '#bf5af2', dark: '#7a1faa' },
+  { hex: '#ff2d55', dark: '#99001e' },
+  { hex: '#ff6b9d', dark: '#9e1f50' },
+  { hex: '#32ade6', dark: '#00567a' },
+  { hex: '#64d2ff', dark: '#006999' },
+  { hex: '#ff6b35', dark: '#992500' },
   { hex: '#636366', dark: '#3a3a3c' }
 ];
 
-const EMOJIS = ['📦', '⚡', '🔥', '🎯', '🌊', '🍀', '💡', '🎲', '🌙', '⭐', '🎪', '🧩', '🎭', '🏆', '🌈', '🦄'];
+const EMOJIS = [
+  '📦','⚡','🔥','🎯','🌊','🍀','💡','🎲','🌙','⭐','🎪','🧩',
+  '🎭','🏆','🌈','🦄','🚀','💎','🎸','🍕','👾','🤖','🎃','🧠',
+  '🐉','🦊','🌺','🍄','🎵','🔮','⚽','🎨'
+];
 
 let packets = [];
 
@@ -256,10 +268,12 @@ function buildEditor(p) {
       <input class="packet-name-input" id="pni-${p.id}" value="${p.label.replace(/"/g, '&quot;')}" placeholder="Nome pacchetto" oninput="updatePName('${p.id}',this.value)">
     </div>
     <div class="ep-panel" id="epp-${p.id}">
-      <div class="emoji-picker">${EMOJIS.map((em, ei) => `<button class="ep-opt${em === p.emoji ? ' sel' : ''}" onclick="pickEmoji('${p.id}','${em}')">${em}</button>`).join('')}</div>
+      <div class="ep-section-label">Icona</div>
+      <div class="emoji-picker">${EMOJIS.map((em) => `<button class="ep-opt${em === p.emoji ? ' sel' : ''}" onclick="pickEmoji('${p.id}','${em}')">${em}</button>`).join('')}</div>
+      <div class="ep-section-label">Colore</div>
       <div class="color-picker">${COLORS.map((cc, ci) => `<div class="cp-opt${ci === p.colorIdx ? ' sel' : ''}" style="background:${cc.hex};" onclick="pickColor('${p.id}',${ci})"></div>`).join('')}</div>
     </div>
-    <textarea class="packet-textarea" id="pta-${p.id}" spellcheck="false" placeholder="pizza,rotonda,mozzarella,Napoli&#10;gelato,freddo,cono,estate">${p.lines.join('\n')}</textarea>
+    <textarea class="packet-textarea" id="pta-${p.id}" spellcheck="false" placeholder="pizza,rotonda,mozzarella,Napoli,italiana&#10;gelato,freddo,cono,estate,artigianale">${p.lines.join('\n')}</textarea>
     <div class="btn-row">
       <button class="psave" onclick="savePacket('${p.id}',this)">Salva</button>
       <button class="psave pgray" onclick="exportOne('${p.id}')" title="Esporta">⬆</button>
@@ -386,7 +400,7 @@ function importPackets(e) {
 // Game Logic
 function parseLine(l) {
   const pts = l.split(',').map(s => s.trim());
-  return { word: pts[0] || '', hints: pts.slice(1, 4).filter(Boolean) };
+  return { word: pts[0] || '', hints: pts.slice(1).filter(Boolean) };
 }
 
 function pickWord() {
@@ -628,7 +642,7 @@ async function init() {
   );
   const defaults = [
     ...fetched,
-    { id: 'custom', label: 'Custom', emoji: '🎲', colorIdx: 3, lines: [] }
+    { id: 'custom', label: 'Custom', emoji: '🎲', colorIdx: 7, lines: [] }
   ];
   loadPackets(defaults);
   ST.selectedPackIds.add(packets[0]?.id || 'easy');
