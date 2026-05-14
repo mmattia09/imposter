@@ -28,6 +28,16 @@ function savePackets() {
   localStorage.setItem('imp_packs_v3', JSON.stringify(packets));
 }
 
+function savePlayerNames() {
+  localStorage.setItem('imp_names', JSON.stringify(ST.playerNames));
+}
+
+function clearNames() {
+  ST.playerNames = [];
+  localStorage.removeItem('imp_names');
+  renderPlayerNames();
+}
+
 function getColor(p) {
   return COLORS[p.colorIdx % COLORS.length];
 }
@@ -144,7 +154,7 @@ function renderPlayerNames() {
     input.type = 'text';
     input.placeholder = 'Giocatore ' + (i + 1);
     input.value = ST.playerNames[i] || '';
-    input.oninput = (e) => { ST.playerNames[i] = e.target.value; };
+    input.oninput = (e) => { ST.playerNames[i] = e.target.value; savePlayerNames(); };
     input.onkeydown = (e) => {
       if (e.key === 'Enter') {
         const next = document.querySelectorAll('.name-input')[i + 1];
@@ -595,10 +605,16 @@ document.getElementById('btn-settings-back').onclick = () => {
 };
 document.getElementById('btn-export-all').onclick = exportAllPackets;
 document.getElementById('file-import').onchange = importPackets;
+document.getElementById('btn-clear-names').onclick = clearNames;
 document.getElementById('btn-add-packet').onclick = addCustomPacket;
 
 // Load packets from manifest, then initialize UI
 async function init() {
+  const savedNames = localStorage.getItem('imp_names');
+  if (savedNames) {
+    try { ST.playerNames = JSON.parse(savedNames); } catch(e) {}
+  }
+
   const manifest = await fetch('data/manifest.json').then(r => r.json());
   const fetched = await Promise.all(
     manifest.map(name => fetch('data/' + name + '.json').then(r => r.json()))
