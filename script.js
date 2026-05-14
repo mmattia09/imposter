@@ -48,6 +48,8 @@ function getColor(p) {
   return COLORS[p.colorIdx % COLORS.length];
 }
 
+const sessionScore = { civilians: 0, impostors: 0, mrwhite: 0 };
+
 const ST = {
   playerCount: 5,
   playerNames: [],
@@ -582,27 +584,80 @@ function checkWin() {
   showVoteScreen();
 }
 
+function roleLabel(role) {
+  return role === 'civilian' ? 'Civile' : role === 'impostor' ? 'Impostore' : 'Mr. White';
+}
+
 function showResult(outcome) {
+  if (outcome === 'civilians') sessionScore.civilians++;
+  else if (outcome === 'impostors') sessionScore.impostors++;
+  else sessionScore.mrwhite++;
+
   let emoji, title, sub;
   if (outcome === 'civilians') {
-    emoji = '🎉';
-    title = 'I civili vincono!';
-    sub = 'Avete smascherato tutti gli impostori!';
+    emoji = '🎉'; title = 'I civili vincono!'; sub = 'Avete smascherato tutti gli impostori!';
   } else if (outcome === 'impostors') {
-    emoji = '😈';
-    title = 'Gli impostori vincono!';
-    sub = "Siete stati ingannati. Gli impostori l'hanno spuntata.";
+    emoji = '😈'; title = 'Gli impostori vincono!'; sub = "Siete stati ingannati. Gli impostori l'hanno spuntata.";
   } else {
-    emoji = '⚪️';
-    title = 'Mr. White vince!';
-    sub = 'Ha indovinato la parola segreta. Genio del bluff!';
+    emoji = '⚪️'; title = 'Mr. White vince!'; sub = 'Ha indovinato la parola segreta. Genio del bluff!';
   }
+
   const iN = ST.players.filter(p => p.role === 'impostor').map(p => p.name).join(', ');
   const mwN = ST.players.filter(p => p.role === 'mrwhite').map(p => p.name).join(', ');
-  let rows = `<div class="info-row"><span>Parola segreta</span><span><strong>${ST.secretWord}</strong></span></div><div class="info-row"><span>Impostori</span><span class="tag-i">${iN || '—'}</span></div>`;
-  if (mwN) rows += `<div class="info-row"><span>Mr. White</span><span class="tag-mw">${mwN}</span></div>`;
-  document.getElementById('result-card').innerHTML = `<div class="result-emoji">${emoji}</div><div class="result-title">${title}</div><div class="result-sub">${sub}</div><div style="margin-top:var(--spacing-sm);">${rows}</div>`;
+
+  let infoRows = `<div class="info-row"><span>Parola segreta</span><span><strong>${ST.secretWord}</strong></span></div>
+    <div class="info-row"><span>Impostori</span><span class="tag-i">${iN || '—'}</span></div>`;
+  if (mwN) infoRows += `<div class="info-row"><span>Mr. White</span><span class="tag-mw">${mwN}</span></div>`;
+
+  const logRows = ST.players.map(p =>
+    `<div class="log-row">
+      <span class="log-name">${p.name}</span>
+      <span class="log-role-badge ${p.role}">${roleLabel(p.role)}</span>
+    </div>`
+  ).join('');
+
+  const total = sessionScore.civilians + sessionScore.impostors + sessionScore.mrwhite;
+  const mwScore = sessionScore.mrwhite > 0
+    ? `<span class="score-pill mrw">⚪ Mr.White&nbsp;${sessionScore.mrwhite}</span>` : '';
+  const scoreSection = `<div class="session-score-section">
+    <div class="session-score-title">Sessione · ${total} round</div>
+    <div class="session-score">
+      <span class="score-pill civ">🟢 Civili&nbsp;${sessionScore.civilians}</span>
+      <span class="score-pill imp">🔴 Impostori&nbsp;${sessionScore.impostors}</span>
+      ${mwScore}
+    </div>
+    <button class="reset-session-btn" id="btn-reset-session">azzera sessione</button>
+  </div>`;
+
+  document.getElementById('result-card').innerHTML = `
+    <div class="result-emoji">${emoji}</div>
+    <div class="result-title">${title}</div>
+    <div class="result-sub">${sub}</div>
+    <div style="margin-top:var(--spacing-sm);">${infoRows}</div>
+    <div class="divider" style="margin:var(--spacing-lg) 0;"></div>
+    <div class="game-log-section">
+      <div class="game-log-title">Chi era chi</div>
+      <div class="game-log">${logRows}</div>
+    </div>
+    ${scoreSection}`;
+
+  document.getElementById('btn-reset-session').onclick = resetSession;
+
   showScreen('result');
+}
+
+function resetSession() {
+  sessionScore.civilians = sessionScore.impostors = sessionScore.mrwhite = 0;
+  const section = document.querySelector('.session-score-section');
+  if (!section) return;
+  section.innerHTML = `
+    <div class="session-score-title">Sessione · 0 round</div>
+    <div class="session-score">
+      <span class="score-pill civ">🟢 Civili&nbsp;0</span>
+      <span class="score-pill imp">🔴 Impostori&nbsp;0</span>
+    </div>
+    <button class="reset-session-btn" id="btn-reset-session">azzera sessione</button>`;
+  document.getElementById('btn-reset-session').onclick = resetSession;
 }
 
 function goHome() {
