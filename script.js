@@ -481,9 +481,14 @@ function revealRole() {
 }
 
 function nextPlayer() {
-  ST.currentPlayerIndex++;
-  if (ST.currentPlayerIndex >= ST.playerCount) showVoteScreen();
-  else showCover();
+  const card = document.getElementById('player-card');
+  card.style.animation = 'slideOutLeft 0.22s ease-in forwards';
+  setTimeout(() => {
+    card.style.animation = '';
+    ST.currentPlayerIndex++;
+    if (ST.currentPlayerIndex >= ST.playerCount) showVoteScreen();
+    else showCover();
+  }, 210);
 }
 
 function showVoteScreen() {
