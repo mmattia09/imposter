@@ -5,12 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Impostore</title>
   <link rel="stylesheet" href="style.css">
+  <script>
+    (function() {
+      var t = localStorage.getItem('imp_theme') ||
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
 </head>
 <body>
   <div class="app">
     <!-- HOME -->
     <div class="screen active" id="screen-home">
-      <div class="header">
+      <div class="header" style="position:relative;">
+        <button class="theme-btn" id="btn-theme" aria-label="Cambia tema">🌙</button>
         <h1>Impostore</h1>
         <p>Chi è il traditore tra voi?</p>
       </div>

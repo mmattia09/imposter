@@ -34,6 +34,9 @@
 
   --shadow: 0 2px 16px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.11), 0 4px 16px rgba(0, 0, 0, 0.06);
+
+  --toggle-off: #e5e5ea;
+  --nav-bg: rgba(245, 245, 247, 0.85);
 }
 
 body {
@@ -249,7 +252,7 @@ body.has-bottom-nav {
 .toggle {
   width: 51px;
   height: 31px;
-  background: #e5e5ea;
+  background: var(--toggle-off);
   border-radius: 16px;
   position: relative;
   cursor: pointer;
@@ -353,7 +356,7 @@ body.has-bottom-nav {
 
 .name-input:focus {
   border-color: var(--accent);
-  background: #fff;
+  background: var(--surface);
 }
 
 .name-delete-btn {
@@ -937,7 +940,7 @@ body.has-bottom-nav {
 
 .packet-name-input:focus {
   border-color: var(--accent);
-  background: #fff;
+  background: var(--surface);
 }
 
 .emoji-btn {
@@ -1147,7 +1150,7 @@ body.has-bottom-nav {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(245, 245, 247, 0.85);
+  background: var(--nav-bg);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-top: 1px solid var(--border);
@@ -1173,6 +1176,50 @@ body.has-bottom-nav {
 /* Settings Screen Content */
 #screen-settings {
   padding-bottom: var(--spacing-3xl);
+}
+
+/* ── Theme toggle button ── */
+.theme-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  transition: background 0.15s;
+  opacity: 0.75;
+}
+
+.theme-btn:hover {
+  background: var(--surface3);
+  opacity: 1;
+}
+
+/* ── Dark Mode ── */
+[data-theme="dark"] {
+  --bg: #1c1c1e;
+  --surface: #2c2c2e;
+  --surface2: #3a3a3c;
+  --surface3: #48484a;
+  --border: rgba(255, 255, 255, 0.1);
+  --border2: rgba(255, 255, 255, 0.16);
+  --text: #f2f2f7;
+  --text2: #aeaeb2;
+  --text3: #636366;
+  --accent: #0a84ff;
+  --accent-h: #409cff;
+  --danger: #ff453a;
+  --success: #30d158;
+  --warning: #ffd60a;
+  --mrw: #98989d;
+  --shadow: 0 2px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55), 0 4px 16px rgba(0, 0, 0, 0.3);
+  --toggle-off: #38383a;
+  --nav-bg: rgba(28, 28, 30, 0.88);
 }
 
 /* Game screens fill available height so cards appear centered */

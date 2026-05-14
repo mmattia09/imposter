@@ -680,9 +680,35 @@ document.getElementById('btn-settings-back').onclick = () => {
 };
 document.getElementById('btn-export-all').onclick = exportAllPackets;
 document.getElementById('file-import').onchange = importPackets;
+document.getElementById('btn-theme').onclick = toggleTheme;
 document.getElementById('btn-reveal-exit').onclick = () => { if (confirm('Uscire dalla partita?')) goHome(); };
 document.getElementById('btn-vote-exit').onclick = () => { if (confirm('Uscire dalla partita?')) goHome(); };
 document.getElementById('btn-add-packet').onclick = addCustomPacket;
+
+// Theme
+function isDarkMode() {
+  return document.documentElement.dataset.theme === 'dark';
+}
+
+function updateThemeBtn() {
+  const btn = document.getElementById('btn-theme');
+  if (btn) btn.textContent = isDarkMode() ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+  const next = isDarkMode() ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('imp_theme', next);
+  updateThemeBtn();
+}
+
+// Listen for system theme changes (only if user hasn't manually chosen)
+window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  if (!localStorage.getItem('imp_theme')) {
+    document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
+    updateThemeBtn();
+  }
+});
 
 // Load packets from manifest, then initialize UI
 async function init() {
@@ -701,6 +727,7 @@ async function init() {
   ];
   loadPackets(defaults);
   ST.selectedPackIds.add(packets[0]?.id || 'easy');
+  updateThemeBtn();
   renderPlayerNames();
   renderHomePills();
 }
