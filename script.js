@@ -11,14 +11,9 @@ const COLORS = [
 
 const EMOJIS = ['📦', '⚡', '🔥', '🎯', '🌊', '🍀', '💡', '🎲', '🌙', '⭐', '🎪', '🧩', '🎭', '🏆', '🌈', '🦄'];
 
-const DEF_PACKETS = [
-  ...PACKETS_DATA,
-  { id: 'custom', label: 'Custom', emoji: '🎲', colorIdx: 3, lines: [] }
-];
-
 let packets = [];
 
-function loadPackets() {
+function loadPackets(defaults) {
   const stored = localStorage.getItem('imp_packs_v3');
   if (stored) {
     try {
@@ -26,14 +21,12 @@ function loadPackets() {
       return;
     } catch (e) {}
   }
-  packets = DEF_PACKETS.map(p => ({ ...p, lines: [...p.lines] }));
+  packets = defaults.map(p => ({ ...p, lines: [...p.lines] }));
 }
 
 function savePackets() {
   localStorage.setItem('imp_packs_v3', JSON.stringify(packets));
 }
-
-loadPackets();
 
 function getColor(p) {
   return COLORS[p.colorIdx % COLORS.length];
@@ -52,8 +45,6 @@ const ST = {
   secretWordHints: [],
   votedOut: null
 };
-
-ST.selectedPackIds.add(packets[0]?.id || 'easy');
 
 // UI State Management
 function showScreen(id) {
@@ -606,6 +597,20 @@ document.getElementById('btn-export-all').onclick = exportAllPackets;
 document.getElementById('file-import').onchange = importPackets;
 document.getElementById('btn-add-packet').onclick = addCustomPacket;
 
-// Initialize UI
-renderPlayerNames();
-renderHomePills();
+// Load packets from manifest, then initialize UI
+async function init() {
+  const manifest = await fetch('data/manifest.json').then(r => r.json());
+  const fetched = await Promise.all(
+    manifest.map(name => fetch('data/' + name + '.json').then(r => r.json()))
+  );
+  const defaults = [
+    ...fetched,
+    { id: 'custom', label: 'Custom', emoji: '🎲', colorIdx: 3, lines: [] }
+  ];
+  loadPackets(defaults);
+  ST.selectedPackIds.add(packets[0]?.id || 'easy');
+  renderPlayerNames();
+  renderHomePills();
+}
+
+init();
