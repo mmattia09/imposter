@@ -611,6 +611,8 @@ document.getElementById('btn-settings-back').onclick = () => {
 document.getElementById('btn-export-all').onclick = exportAllPackets;
 document.getElementById('file-import').onchange = importPackets;
 document.getElementById('btn-clear-names').onclick = clearNames;
+document.getElementById('btn-reveal-exit').onclick = () => { if (confirm('Uscire dalla partita?')) goHome(); };
+document.getElementById('btn-vote-exit').onclick = () => { if (confirm('Uscire dalla partita?')) goHome(); };
 document.getElementById('btn-add-packet').onclick = addCustomPacket;
 
 // Load packets from manifest, then initialize UI

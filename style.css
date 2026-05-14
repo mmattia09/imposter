@@ -56,6 +56,9 @@ body.has-bottom-nav {
 .app {
   width: 100%;
   max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .screen {
@@ -1152,6 +1155,21 @@ body.has-bottom-nav {
 /* Settings Screen Content */
 #screen-settings {
   padding-bottom: var(--spacing-3xl);
+}
+
+/* Game screens fill available height so cards appear centered */
+#screen-cover.active,
+#screen-reveal.active,
+#screen-civilian-elim.active,
+#screen-mrwhite-guess.active,
+#screen-result.active {
+  flex: 1;
+}
+
+.reveal-nav {
+  display: flex;
+  align-items: center;
+  padding-bottom: var(--spacing-sm);
 }
 
 #packet-editors {
