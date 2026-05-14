@@ -1,423 +1,1881 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Impostore</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-:root {
-  --bg:#f5f5f7; --surface:#fff; --surface2:#f5f5f7; --surface3:#e8e8ed;
-  --border:rgba(0,0,0,0.09); --border2:rgba(0,0,0,0.14);
-  --text:#1d1d1f; --text2:#6e6e73; --text3:#aeaeb2;
-  --accent:#0071e3; --accent-h:#0077ed;
-  --danger:#ff3b30; --success:#34c759; --warning:#ff9f0a; --mrw:#636366;
-  --r:16px; --rs:10px;
-  --sh:0 2px 16px rgba(0,0,0,0.06),0 1px 4px rgba(0,0,0,0.04);
-  --sh-lg:0 20px 60px rgba(0,0,0,0.11),0 4px 16px rgba(0,0,0,0.06);
-}
-body { font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:24px 16px 56px; -webkit-font-smoothing:antialiased; }
-.app { width:100%; max-width:520px; }
-.screen { display:none; }
-.screen.active { display:block; }
-.header { text-align:center; margin-bottom:28px; padding-top:8px; }
-.header h1 { font-size:34px; font-weight:700; letter-spacing:-.5px; }
-.header p { font-size:15px; color:var(--text2); margin-top:4px; }
-.card { background:var(--surface); border-radius:var(--r); padding:20px; box-shadow:var(--sh); margin-bottom:12px; border:1px solid var(--border); }
-.card-title { font-size:12px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.7px; margin-bottom:14px; }
-.nav-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
-.nav-back { font-size:15px; color:var(--accent); background:none; border:none; cursor:pointer; font-family:inherit; font-weight:500; padding:0; }
-.nav-title { font-size:17px; font-weight:600; }
-.stepper { display:flex; align-items:center; gap:16px; justify-content:center; }
-.step-btn { width:36px; height:36px; border-radius:50%; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; font-family:inherit; }
-.step-btn:hover { background:var(--surface3); }
-.step-btn:active { transform:scale(.9); }
-.step-value { font-size:28px; font-weight:600; min-width:40px; text-align:center; letter-spacing:-.5px; }
-.step-label { font-size:13px; color:var(--text2); text-align:center; margin-top:3px; }
-.roles-grid { display:grid; grid-template-columns:1fr 1px 1fr; }
-.roles-divider { background:var(--border); }
-.role-col-l { padding-right:20px; }
-.role-col-r { padding-left:20px; }
-.toggle-row { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--border); }
-.toggle-row:last-child { border-bottom:none; padding-bottom:0; }
-.toggle-info h3 { font-size:15px; font-weight:500; }
-.toggle-info p { font-size:13px; color:var(--text2); margin-top:2px; }
-.toggle { width:51px; height:31px; background:#e5e5ea; border-radius:16px; position:relative; cursor:pointer; transition:background .25s; flex-shrink:0; border:none; outline:none; }
-.toggle.on { background:var(--success); }
-.toggle::after { content:''; position:absolute; width:27px; height:27px; background:white; border-radius:50%; top:2px; left:2px; transition:transform .25s; box-shadow:0 1px 4px rgba(0,0,0,.2); }
-.toggle.on::after { transform:translateX(20px); }
-.packet-grid { display:flex; flex-wrap:wrap; gap:8px; }
-.packet-pill { padding:8px 14px; border-radius:20px; font-size:14px; font-weight:500; cursor:pointer; border:1.5px solid var(--border2); background:transparent; color:var(--text2); transition:all .15s; font-family:inherit; display:flex; align-items:center; gap:6px; }
-.packet-pill .dot { width:8px; height:8px; border-radius:50%; background:var(--text3); flex-shrink:0; }
-.player-name-list { display:flex; flex-direction:column; gap:7px; margin-top:16px; }
-.player-name-row { display:flex; align-items:center; gap:10px; }
-.player-index { font-size:12px; color:var(--text3); font-weight:600; min-width:18px; text-align:right; }
-.name-input { flex:1; padding:10px 13px; border-radius:var(--rs); border:1.5px solid var(--border); background:var(--surface2); font-family:inherit; font-size:15px; color:var(--text); outline:none; transition:border-color .15s; }
-.name-input:focus { border-color:var(--accent); background:#fff; }
-.btn { width:100%; padding:15px; border-radius:var(--rs); border:none; font-size:17px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .15s; }
-.btn-primary { background:var(--accent); color:white; }
-.btn-primary:hover { background:var(--accent-h); }
-.btn-primary:active { transform:scale(.98); }
-.btn-secondary { background:var(--surface2); color:var(--text); border:1px solid var(--border); font-size:15px; font-weight:500; padding:12px; }
-.btn-secondary:hover { background:var(--surface3); }
-.btn-group { display:flex; flex-direction:column; gap:8px; }
-.start-row { display:flex; gap:8px; margin-bottom:32px; }
-.settings-gear { flex:0 0 auto; width:52px; border-radius:var(--rs); border:1px solid var(--border); background:var(--surface2); font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
-.settings-gear:hover { background:var(--surface3); }
-.progress-bar { height:5px; background:var(--surface3); border-radius:3px; margin-bottom:20px; overflow:hidden; }
-.progress-fill { height:100%; background:var(--accent); border-radius:3px; transition:width .35s ease; }
-.cover-screen { background:var(--surface); border-radius:var(--r); padding:48px 28px; text-align:center; box-shadow:var(--sh-lg); border:1px solid var(--border); }
-.cover-icon { font-size:52px; margin-bottom:16px; }
-.cover-title { font-size:24px; font-weight:700; margin-bottom:8px; letter-spacing:-.3px; }
-.cover-sub { font-size:15px; color:var(--text2); }
-#screen-reveal { min-height:calc(100vh - 48px); flex-direction:column; }
-#screen-reveal.active { display:flex; }
-.reveal-top { flex:1; display:flex; flex-direction:column; justify-content:center; }
-.reveal-bottom { padding-top:16px; }
-.player-card { background:var(--surface); border-radius:var(--r); padding:32px 24px 28px; text-align:center; box-shadow:var(--sh-lg); border:1px solid var(--border); animation:slideUp .3s ease; }
-@keyframes slideUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-.player-number { font-size:12px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:20px; }
-.role-icon { width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 16px; }
-.role-icon.civilian { background:rgba(52,199,89,.1); }
-.role-icon.impostor { background:rgba(255,59,48,.1); }
-.role-icon.mrwhite { background:rgba(99,99,102,.1); }
-.role-badge { font-size:22px; font-weight:700; }
-.role-badge.civilian { color:var(--success); }
-.role-badge.impostor { color:var(--danger); }
-.role-badge.mrwhite { color:var(--mrw); }
-.role-word { font-size:34px; font-weight:700; color:var(--text); letter-spacing:-.8px; margin-top:10px; }
-.role-sub { font-size:14px; color:var(--text2); margin-top:10px; line-height:1.5; margin-bottom:4px; }
-.hint-solo { background:rgba(255,159,10,.07); border:1px solid rgba(255,159,10,.25); border-radius:var(--rs); padding:16px; margin-top:16px; text-align:center; }
-.hint-label { font-size:11px; font-weight:700; color:var(--warning); text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px; }
-.hint-text { font-size:22px; font-weight:700; color:var(--text); }
-.civ-elim-card { background:var(--surface); border-radius:var(--r); padding:40px 24px; text-align:center; box-shadow:var(--sh-lg); border:1px solid var(--border); animation:slideUp .3s ease; }
-.player-list { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
-.player-vote-item { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--surface2); border-radius:var(--rs); border:1.5px solid var(--border); cursor:pointer; transition:all .15s; user-select:none; }
-.player-vote-item:hover { border-color:var(--accent); background:rgba(0,113,227,.04); }
-.player-vote-item.selected { border-color:var(--danger); background:rgba(255,59,48,.06); }
-.player-vote-name { font-size:16px; font-weight:500; }
-.vote-check { width:22px; height:22px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; color:white; font-weight:700; flex-shrink:0; }
-.player-vote-item.selected .vote-check { background:var(--danger); border-color:var(--danger); }
-.result-card { background:var(--surface); border-radius:var(--r); padding:40px 24px; text-align:center; box-shadow:var(--sh-lg); border:1px solid var(--border); animation:slideUp .4s ease; }
-.result-emoji { font-size:64px; margin-bottom:14px; }
-.result-title { font-size:28px; font-weight:700; letter-spacing:-.5px; margin-bottom:8px; }
-.result-sub { font-size:15px; color:var(--text2); margin-bottom:24px; line-height:1.5; }
-.info-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); font-size:15px; }
-.info-row:last-child { border-bottom:none; }
-.info-row span:first-child { color:var(--text2); }
-.info-row span:last-child { font-weight:600; }
-.tag-i { color:var(--danger); }
-.tag-mw { color:var(--mrw); }
-.settings-intro { font-size:14px; color:var(--text2); margin-bottom:14px; line-height:1.65; background:var(--surface); border-radius:var(--rs); padding:14px 16px; border:1px solid var(--border); }
-.settings-intro code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; background:var(--surface3); padding:2px 6px; border-radius:4px; color:var(--text); }
-.packet-item { background:var(--surface); border-radius:var(--rs); border:1px solid var(--border); margin-bottom:8px; overflow:hidden; box-shadow:var(--sh); }
-.packet-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; cursor:pointer; gap:8px; }
-.ph-left { display:flex; align-items:center; gap:8px; flex:1; min-width:0; }
-.pdot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
-.pname { font-size:15px; font-weight:500; }
-.pcount { font-size:13px; color:var(--text3); flex-shrink:0; }
-.pchev { font-size:12px; color:var(--text3); transition:transform .2s; flex-shrink:0; }
-.pchev.open { transform:rotate(180deg); }
-.packet-body { display:none; padding:0 16px 16px; }
-.packet-body.open { display:block; }
-.packet-textarea { width:100%; padding:11px 12px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface2); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--text); resize:vertical; min-height:140px; outline:none; transition:border-color .15s; line-height:1.65; }
-.packet-textarea:focus { border-color:var(--accent); }
-.packet-name-input { flex:1; padding:9px 12px; border-radius:var(--rs); border:1.5px solid var(--border); background:var(--surface2); font-family:inherit; font-size:15px; font-weight:500; color:var(--text); outline:none; transition:border-color .15s; min-width:0; }
-.packet-name-input:focus { border-color:var(--accent); background:#fff; }
-.emoji-btn { font-size:20px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--rs); width:40px; height:40px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-.psave { padding:8px 16px; border-radius:8px; background:var(--accent); color:white; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.psave:active { opacity:.8; }
-.pgray { background:var(--surface3); color:var(--text); border:1px solid var(--border); }
-.pdel { padding:8px 14px; border-radius:8px; background:rgba(255,59,48,.08); color:var(--danger); border:1px solid rgba(255,59,48,.2); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
-.add-packet-btn { width:100%; padding:13px; border-radius:var(--rs); border:1.5px dashed var(--border2); background:transparent; color:var(--text2); font-size:15px; font-weight:500; cursor:pointer; font-family:inherit; transition:all .15s; margin-bottom:16px; }
-.add-packet-btn:hover { background:var(--surface3); border-color:var(--accent); color:var(--accent); }
-.sa-row { display:flex; gap:8px; margin-bottom:14px; }
-.sa-btn { flex:1; padding:11px; border-radius:var(--rs); border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:14px; font-weight:500; cursor:pointer; font-family:inherit; transition:all .15s; text-align:center; }
-.sa-btn:hover { background:var(--surface3); }
-.ep-panel { display:none; padding:10px 0 12px; border-bottom:1px solid var(--border); margin-bottom:12px; }
-.emoji-picker { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
-.ep-opt { font-size:18px; width:34px; height:34px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface2); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
-.ep-opt.sel { border-color:var(--accent); background:rgba(0,113,227,.1); }
-.color-picker { display:flex; flex-wrap:wrap; gap:6px; }
-.cp-opt { width:26px; height:26px; border-radius:50%; cursor:pointer; border:2.5px solid transparent; transition:all .15s; }
-.cp-opt.sel { border-color:white; box-shadow:0 0 0 2.5px var(--accent); transform:scale(1.12); }
-.btn-row { display:flex; gap:8px; margin-top:10px; }
-.divider { height:1px; background:var(--border); margin:14px 0; }
-.small-info { font-size:12px; color:var(--text3); text-align:center; margin-top:8px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impostore</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f5f5f7;
+      --surface: #fff;
+      --surface2: #f5f5f7;
+      --surface3: #e8e8ed;
+      --border: rgba(0, 0, 0, 0.09);
+      --border2: rgba(0, 0, 0, 0.14);
+      --text: #1d1d1f;
+      --text2: #6e6e73;
+      --text3: #aeaeb2;
+      --accent: #0071e3;
+      --accent-h: #0077ed;
+      --danger: #ff3b30;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --mrw: #636366;
+
+      --radius: 16px;
+      --radius-sm: 10px;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 20px;
+      --spacing-2xl: 24px;
+      --spacing-3xl: 28px;
+      --spacing-4xl: 32px;
+
+      --shadow: 0 2px 16px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.11), 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-2xl) var(--spacing-lg);
+      -webkit-font-smoothing: antialiased;
+      transition: padding-bottom 0.15s;
+    }
+
+    body.has-bottom-nav {
+      padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .app {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: var(--spacing-3xl);
+      padding-top: var(--spacing-xs);
+    }
+
+    .header h1 {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 15px;
+      color: var(--text2);
+      margin-top: var(--spacing-xs);
+    }
+
+    /* Navigation */
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .nav-back {
+      font-size: 15px;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 0;
+      transition: opacity 0.15s;
+    }
+
+    .nav-back:active {
+      opacity: 0.7;
+    }
+
+    .nav-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow);
+      margin-bottom: var(--spacing-md);
+      border: 1px solid var(--border);
+      width: 100%;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    /* Stepper */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      justify-content: center;
+    }
+
+    .step-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .step-btn:hover {
+      background: var(--surface3);
+    }
+
+    .step-btn:active {
+      transform: scale(0.9);
+    }
+
+    .step-value {
+      font-size: 28px;
+      font-weight: 600;
+      min-width: 40px;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+
+    .step-label {
+      font-size: 13px;
+      color: var(--text2);
+      text-align: center;
+      margin-top: var(--spacing-xs);
+    }
+
+    /* Roles */
+    .roles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+    }
+
+    .roles-divider {
+      background: var(--border);
+    }
+
+    .role-col-l {
+      padding-right: var(--spacing-xl);
+    }
+
+    .role-col-r {
+      padding-left: var(--spacing-xl);
+    }
+
+    /* Toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-md) 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toggle-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .toggle-info h3 {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .toggle-info p {
+      font-size: 13px;
+      color: var(--text2);
+      margin-top: var(--spacing-xs);
+    }
+
+    .toggle {
+      width: 51px;
+      height: 31px;
+      background: #e5e5ea;
+      border-radius: 16px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.25s;
+      flex-shrink: 0;
+      border: none;
+      outline: none;
+    }
+
+    .toggle.on {
+      background: var(--success);
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 27px;
+      height: 27px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.25s;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle.on::after {
+      transform: translateX(20px);
+    }
+
+    /* Packets */
+    .packet-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .packet-pill {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid var(--border2);
+      background: transparent;
+      color: var(--text2);
+      transition: all 0.15s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .packet-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text3);
+      flex-shrink: 0;
+    }
+
+    /* Player Names */
+    .player-name-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-lg);
+    }
+
+    .player-name-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+    }
+
+    .player-index {
+      font-size: 12px;
+      color: var(--text3);
+      font-weight: 600;
+      min-width: 18px;
+      text-align: right;
+    }
+
+    .name-input {
+      flex: 1;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .name-input:focus {
+      border-color: var(--accent);
+      background: #fff;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-h);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 12px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface3);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .start-row {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-4xl);
+    }
+
+    .settings-gear {
+      flex: 0 0 auto;
+      width: 52px;
+      height: auto;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      padding: 15px;
+    }
+
+    .settings-gear:hover {
+      background: var(--surface3);
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      height: 5px;
+      background: var(--surface3);
+      border-radius: 3px;
+      margin-bottom: var(--spacing-xl);
+      overflow: hidden;
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.35s ease;
+    }
+
+    /* Cover Screen */
+    .screen#screen-cover {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .screen#screen-cover.active {
+      display: flex;
+    }
+
+    .cover-screen {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: var(--spacing-4xl) var(--spacing-2xl);
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      width: 100%;
+    }
+
+    .cover-icon {
+      font-size: 52px;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .cover-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: var(--spacing-md);
+      letter-spacing: -0.3px;
+    }
+
+    .cover-sub {
+      font-size: 15px;
+      color: var(--text2);
+    }
+
+    /* Reveal Screen */
+    #screen-reveal {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #screen-reveal.active {
+      display: flex;
+    }
+
+    .reveal-top {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* Player Card */
+    .player-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: var(--spacing-4xl) var(--spacing-2xl) var(--spacing-xl);
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      animation: slideUp 0.3s ease;
+      width: 100%;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .player-number {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .role-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto var(--spacing-lg);
+    }
+
+    .role-icon.civilian {
+      background: rgba(52, 199, 89, 0.1);
+    }
+
+    .role-icon.impostor {
+      background: rgba(255, 59, 48, 0.1);
+    }
+
+    .role-icon.mrwhite {
+      background: rgba(99, 99, 102, 0.1);
+    }
+
+    .role-badge {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .role-badge.civilian {
+      color: var(--success);
+    }
+
+    .role-badge.impostor {
+      color: var(--danger);
+    }
+
+    .role-badge.mrwhite {
+      color: var(--mrw);
+    }
+
+    .role-word {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.8px;
+      margin-top: var(--spacing-lg);
+    }
+
+    .role-sub {
+      font-size: 14px;
+      color: var(--text2);
+      margin-top: var(--spacing-lg);
+      line-height: 1.5;
+    }
+
+    .hint-solo {
+      background: rgba(255, 159, 10, 0.07);
+      border: 1px solid rgba(255, 159, 10, 0.25);
+      border-radius: var(--radius-sm);
+      padding: var(--spacing-lg);
+      margin-top: var(--spacing-lg);
+      text-align: center;
+    }
+
+    .hint-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--warning);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .hint-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Civilian Eliminated */
+    .screen#screen-civilian-elim {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .screen#screen-civilian-elim.active {
+      display: flex;
+    }
+
+    .civ-elim-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: var(--spacing-4xl) var(--spacing-2xl);
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      animation: slideUp 0.3s ease;
+      width: 100%;
+    }
+
+    /* Mr White Guess Screen */
+    .screen#screen-mrwhite-guess {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .screen#screen-mrwhite-guess.active {
+      display: flex;
+    }
+
+    /* Vote Screen */
+    .player-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-lg);
+    }
+
+    .player-vote-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-lg) var(--spacing-xl);
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      min-height: 48px;
+    }
+
+    .player-vote-item:hover {
+      border-color: var(--accent);
+      background: rgba(0, 113, 227, 0.04);
+    }
+
+    .player-vote-item.selected {
+      border-color: var(--danger);
+      background: rgba(255, 59, 48, 0.06);
+    }
+
+    .player-vote-name {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .vote-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: white;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .player-vote-item.selected .vote-check {
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    /* Result Card */
+    .screen#screen-result {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .screen#screen-result.active {
+      display: flex;
+    }
+
+    .result-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: var(--spacing-4xl) var(--spacing-2xl);
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      animation: slideUp 0.4s ease;
+      width: 100%;
+    }
+
+    .result-emoji {
+      font-size: 64px;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .result-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .result-sub {
+      font-size: 15px;
+      color: var(--text2);
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.5;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md) 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-row span:first-child {
+      color: var(--text2);
+    }
+
+    .info-row span:last-child {
+      font-weight: 600;
+    }
+
+    .tag-i {
+      color: var(--danger);
+    }
+
+    .tag-mw {
+      color: var(--mrw);
+    }
+
+    /* Settings */
+    .settings-intro {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: var(--spacing-lg);
+      line-height: 1.65;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      padding: var(--spacing-lg);
+      border: 1px solid var(--border);
+    }
+
+    .settings-intro code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12.5px;
+      background: var(--surface3);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    /* Packet Editor */
+    .packet-item {
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin-bottom: var(--spacing-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .packet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-lg);
+      cursor: pointer;
+      gap: var(--spacing-sm);
+    }
+
+    .ph-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pdot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pname {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .pcount {
+      font-size: 13px;
+      color: var(--text3);
+      flex-shrink: 0;
+    }
+
+    .pchev {
+      font-size: 12px;
+      color: var(--text3);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .pchev.open {
+      transform: rotate(180deg);
+    }
+
+    .packet-body {
+      display: none;
+      padding: 0 var(--spacing-lg) var(--spacing-lg);
+    }
+
+    .packet-body.open {
+      display: block;
+    }
+
+    .packet-textarea {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: var(--text);
+      resize: vertical;
+      min-height: 140px;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.65;
+    }
+
+    .packet-textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .packet-name-input {
+      flex: 1;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+      min-width: 0;
+    }
+
+    .packet-name-input:focus {
+      border-color: var(--accent);
+      background: #fff;
+    }
+
+    .emoji-btn {
+      font-size: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      padding: 0;
+    }
+
+    .emoji-btn:hover {
+      background: var(--surface3);
+    }
+
+    .psave {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s;
+    }
+
+    .psave:active {
+      opacity: 0.8;
+    }
+
+    .pgray {
+      background: var(--surface3);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .pdel {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: 8px;
+      background: rgba(255, 59, 48, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(255, 59, 48, 0.2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .pdel:hover {
+      background: rgba(255, 59, 48, 0.12);
+    }
+
+    .add-packet-btn {
+      width: 100%;
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      border: 1.5px dashed var(--border2);
+      background: transparent;
+      color: var(--text2);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .add-packet-btn:hover {
+      background: var(--surface3);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .sa-row {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .sa-btn {
+      flex: 1;
+      padding: var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .sa-btn:hover {
+      background: var(--surface3);
+    }
+
+    .ep-panel {
+      display: none;
+      padding: var(--spacing-md) 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .emoji-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .ep-opt {
+      font-size: 18px;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      padding: 0;
+    }
+
+    .ep-opt.sel {
+      border-color: var(--accent);
+      background: rgba(0, 113, 227, 0.1);
+    }
+
+    .color-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+
+    .cp-opt {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2.5px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .cp-opt.sel {
+      border-color: white;
+      box-shadow: 0 0 0 2.5px var(--accent);
+      transform: scale(1.12);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-lg);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: var(--spacing-lg) 0;
+    }
+
+    .small-info {
+      font-size: 12px;
+      color: var(--text3);
+      text-align: center;
+      margin-top: var(--spacing-sm);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(245, 245, 247, 0.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-top: 1px solid var(--border);
+      padding: var(--spacing-md) var(--spacing-lg) calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
+      display: none;
+      z-index: 10;
+    }
+
+    .bottom-nav-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .bottom-nav.active {
+      display: block;
+    }
+
+    .bottom-nav .btn-group {
+      gap: var(--spacing-sm);
+    }
+
+    /* Settings Screen Content */
+    #screen-settings {
+      padding-bottom: var(--spacing-3xl);
+    }
+
+    #packet-editors {
+      margin-bottom: var(--spacing-lg);
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-
-<!-- HOME -->
-<div class="screen active" id="screen-home">
-  <div class="header"><h1>Impostore</h1><p>Chi è il traditore tra voi?</p></div>
-  <div class="card">
-    <div class="card-title">Giocatori</div>
-    <div class="stepper">
-      <button class="step-btn" onclick="adjustPlayers(-1)">−</button>
-      <div><div class="step-value" id="player-count">5</div><div class="step-label">giocatori</div></div>
-      <button class="step-btn" onclick="adjustPlayers(1)">+</button>
-    </div>
-    <div class="player-name-list" id="player-name-list"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Ruoli</div>
-    <div class="roles-grid">
-      <div class="role-col-l">
+  <div class="app">
+    <!-- HOME -->
+    <div class="screen active" id="screen-home">
+      <div class="header">
+        <h1>Impostore</h1>
+        <p>Chi è il traditore tra voi?</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Giocatori</div>
         <div class="stepper">
-          <button class="step-btn" onclick="adjustImpostors(-1)">−</button>
-          <div><div class="step-value" id="impostor-count">1</div><div class="step-label">impostori</div></div>
-          <button class="step-btn" onclick="adjustImpostors(1)">+</button>
+          <button class="step-btn" id="btn-players-minus">−</button>
+          <div>
+            <div class="step-value" id="player-count">5</div>
+            <div class="step-label">giocatori</div>
+          </div>
+          <button class="step-btn" id="btn-players-plus">+</button>
+        </div>
+        <div class="player-name-list" id="player-name-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Ruoli</div>
+        <div class="roles-grid">
+          <div class="role-col-l">
+            <div class="stepper">
+              <button class="step-btn" id="btn-impostors-minus">−</button>
+              <div>
+                <div class="step-value" id="impostor-count">1</div>
+                <div class="step-label">impostori</div>
+              </div>
+              <button class="step-btn" id="btn-impostors-plus">+</button>
+            </div>
+          </div>
+          <div class="roles-divider"></div>
+          <div class="role-col-r">
+            <div class="stepper">
+              <button class="step-btn" id="btn-mrwhites-minus">−</button>
+              <div>
+                <div class="step-value" id="mrwhite-count">0</div>
+                <div class="step-label">Mr. White</div>
+              </div>
+              <button class="step-btn" id="btn-mrwhites-plus">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h3>Indizi agli impostori</h3>
+            <p>Ogni impostore riceve 1 indizio</p>
+          </div>
+          <button class="toggle on" id="toggle-hints"></button>
         </div>
       </div>
-      <div style="background:var(--border);width:1px;"></div>
-      <div class="role-col-r">
-        <div class="stepper">
-          <button class="step-btn" onclick="adjustMrWhites(-1)">−</button>
-          <div><div class="step-value" id="mrwhite-count">0</div><div class="step-label">Mr. White</div></div>
-          <button class="step-btn" onclick="adjustMrWhites(1)">+</button>
-        </div>
+      <div class="card">
+        <div class="card-title">Pacchetti parole</div>
+        <div class="packet-grid" id="home-packet-grid"></div>
+      </div>
+      <div class="start-row">
+        <button class="settings-gear" id="btn-settings">⚙️</button>
+        <button class="btn btn-primary" id="btn-start" style="flex: 1;">Inizia la partita</button>
       </div>
     </div>
-    <div class="divider"></div>
-    <div class="toggle-row" style="padding-bottom:0;border-bottom:none;">
-      <div class="toggle-info"><h3>Indizi agli impostori</h3><p>Ogni impostore riceve 1 indizio</p></div>
-      <button class="toggle on" id="toggle-hints" onclick="toggleHints()"></button>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="nav-row">
+        <button class="nav-back" id="btn-settings-back">‹ Indietro</button>
+        <div class="nav-title">Pacchetti parole</div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div class="settings-intro">
+        Modifica le parole. Formato per ogni riga: <code>parola,indizio1,indizio2,indizio3</code><br>
+        Una voce per riga &nbsp;·&nbsp; Gli indizi sono opzionali
+      </div>
+      <div class="sa-row">
+        <button class="sa-btn" id="btn-export-all">⬆ Esporta tutti</button>
+        <label class="sa-btn" style="cursor: pointer;">
+          ⬇ Importa
+          <input type="file" id="file-import" accept=".json" style="display: none;">
+        </label>
+      </div>
+      <div id="packet-editors"></div>
+      <button class="add-packet-btn" id="btn-add-packet">+ Aggiungi pacchetto</button>
+    </div>
+
+    <!-- COVER -->
+    <div class="screen" id="screen-cover">
+      <div class="progress-bar">
+        <div class="progress-fill" id="cover-pb"></div>
+      </div>
+      <div class="cover-screen">
+        <div class="cover-icon">🙈</div>
+        <div class="cover-title" id="cover-title">Passa il telefono</div>
+        <div class="cover-sub">Guarda solo tu la schermata successiva</div>
+      </div>
+    </div>
+
+    <!-- REVEAL -->
+    <div class="screen" id="screen-reveal">
+      <div class="progress-bar">
+        <div class="progress-fill" id="reveal-pb"></div>
+      </div>
+      <div class="reveal-top">
+        <div class="player-card" id="player-card"></div>
+      </div>
+    </div>
+
+    <!-- VOTE -->
+    <div class="screen" id="screen-vote">
+      <div class="nav-row">
+        <div style="width: 60px;"></div>
+        <div class="nav-title">Vota l'impostore</div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chi vuoi eliminare?</div>
+        <div class="player-list" id="vote-list"></div>
+      </div>
+    </div>
+
+    <!-- CIVILIAN ELIMINATED -->
+    <div class="screen" id="screen-civilian-elim">
+      <div class="civ-elim-card">
+        <div style="font-size: 64px; margin-bottom: var(--spacing-lg);">😮</div>
+        <div style="font-size: 22px; font-weight: 700; margin-bottom: var(--spacing-md);" id="civ-elim-name"></div>
+        <div style="font-size: 17px; color: var(--success); font-weight: 600; margin-bottom: var(--spacing-lg);">Era un civile!</div>
+        <p style="font-size: 15px; color: var(--text2); line-height: 1.5;">Gli impostori sono ancora in circolazione. Il gioco continua.</p>
+      </div>
+    </div>
+
+    <!-- MR WHITE GUESS -->
+    <div class="screen" id="screen-mrwhite-guess">
+      <div class="player-card">
+        <div class="role-icon mrwhite">🕵️</div>
+        <div class="role-badge mrwhite">Mr. White eliminato</div>
+        <p style="font-size: 15px; color: var(--text2); line-height: 1.5; margin-bottom: var(--spacing-xl);">
+          Hai ascoltato tutti. Se indovini la parola segreta, <strong>vinci tu!</strong>
+        </p>
+        <input type="text" id="mrwhite-guess-input" placeholder="La parola è…"
+          style="width: 100%; padding: var(--spacing-lg); border-radius: var(--radius-sm); border: 1.5px solid var(--border); font-size: 17px; font-family: inherit; outline: none; text-align: center; background: var(--surface2); margin-bottom: var(--spacing-lg); transition: border-color 0.15s;"
+          onkeydown="if(event.key==='Enter'){checkMrWhiteGuess();}" />
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="screen" id="screen-result">
+      <div class="result-card" id="result-card"></div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">Pacchetti parole</div>
-    <div class="packet-grid" id="home-packet-grid"></div>
-  </div>
-  <div class="start-row">
-    <button class="settings-gear" onclick="goSettings()">⚙️</button>
-    <button class="btn btn-primary" onclick="startGame()" style="flex:1;">Inizia la partita</button>
-  </div>
-</div>
 
-<!-- SETTINGS -->
-<div class="screen" id="screen-settings">
-  <div class="nav-row">
-    <button class="nav-back" onclick="showScreen('home');renderHomePills()">‹ Indietro</button>
-    <div class="nav-title">Pacchetti parole</div>
-    <div style="width:60px;"></div>
-  </div>
-  <div class="settings-intro">
-    Modifica le parole. Formato per ogni riga: <code>parola,indizio1,indizio2,indizio3</code><br>
-    Una voce per riga &nbsp;·&nbsp; Gli indizi sono opzionali
-  </div>
-  <div class="sa-row">
-    <button class="sa-btn" onclick="exportAllPackets()">⬆ Esporta tutti</button>
-    <label class="sa-btn" style="cursor:pointer;">⬇ Importa <input type="file" accept=".json" style="display:none;" onchange="importPackets(event)"></label>
-  </div>
-  <div id="packet-editors"></div>
-  <button class="add-packet-btn" onclick="addCustomPacket()">+ Aggiungi pacchetto</button>
-</div>
-
-<!-- COVER -->
-<div class="screen" id="screen-cover">
-  <div class="progress-bar"><div class="progress-fill" id="cover-pb"></div></div>
-  <div class="cover-screen">
-    <div class="cover-icon">🙈</div>
-    <div class="cover-title" id="cover-title">Passa il telefono</div>
-    <div class="cover-sub">Guarda solo tu la schermata successiva</div>
-  </div>
-  <br>
-  <button class="btn btn-primary" onclick="revealRole()">Sono pronto →</button>
-  <p class="small-info" id="cover-info" style="margin-top:10px;"></p>
-</div>
-
-<!-- REVEAL -->
-<div class="screen" id="screen-reveal">
-  <div class="progress-bar"><div class="progress-fill" id="reveal-pb"></div></div>
-  <div class="reveal-top">
-    <div class="player-card" id="player-card"></div>
-  </div>
-  <div class="reveal-bottom">
-    <button class="btn btn-primary" onclick="nextPlayer()">Copri e passa →</button>
-    <p class="small-info" id="reveal-info" style="margin-top:10px;"></p>
-  </div>
-</div>
-
-<!-- VOTE -->
-<div class="screen" id="screen-vote">
-  <div class="nav-row">
-    <div style="width:60px;"></div>
-    <div class="nav-title">Vota l'impostore</div>
-    <div style="width:60px;"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Chi vuoi eliminare?</div>
-    <div class="player-list" id="vote-list"></div>
-  </div>
-  <div class="btn-group">
-    <button class="btn btn-primary" onclick="confirmVote()">Conferma eliminazione</button>
-    <button class="btn btn-secondary" onclick="cancelVote()">← Continua a giocare</button>
-  </div>
-</div>
-
-<!-- CIVILIAN ELIMINATED -->
-<div class="screen" id="screen-civilian-elim">
-  <div class="civ-elim-card">
-    <div style="font-size:64px;margin-bottom:16px;">😮</div>
-    <div style="font-size:22px;font-weight:700;margin-bottom:6px;" id="civ-elim-name"></div>
-    <div style="font-size:17px;color:var(--success);font-weight:600;margin-bottom:14px;">Era un civile!</div>
-    <p style="font-size:15px;color:var(--text2);line-height:1.5;">Gli impostori sono ancora in circolazione. Il gioco continua.</p>
-  </div>
-  <br>
-  <button class="btn btn-primary" onclick="continueAfterCivilian()">Continua il gioco →</button>
-</div>
-
-<!-- MR WHITE GUESS -->
-<div class="screen" id="screen-mrwhite-guess">
-  <div class="player-card">
-    <div class="role-icon mrwhite">🕵️</div>
-    <div class="role-badge mrwhite" style="margin-bottom:12px;">Mr. White eliminato</div>
-    <p style="font-size:15px;color:var(--text2);line-height:1.5;margin-bottom:24px;">Hai ascoltato tutti. Se indovini la parola segreta, <strong>vinci tu!</strong></p>
-    <input type="text" id="mrwhite-guess-input" placeholder="La parola è…" style="width:100%;padding:14px;border-radius:10px;border:1.5px solid var(--border);font-size:17px;font-family:inherit;outline:none;text-align:center;background:var(--surface2);margin-bottom:16px;" />
-    <div class="btn-group">
-      <button class="btn btn-primary" onclick="checkMrWhiteGuess()">Conferma risposta</button>
-      <button class="btn btn-secondary" onclick="mrwhiteGiveUp()">Rinuncia</button>
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav" id="bottom-nav">
+    <div class="bottom-nav-inner">
+      <div class="btn-group" id="nav-buttons"></div>
     </div>
   </div>
-</div>
 
-<!-- RESULT -->
-<div class="screen" id="screen-result">
-  <div class="result-card" id="result-card"></div>
-  <br>
-  <div class="btn-group">
-    <button class="btn btn-primary" onclick="newRound()">Nuova partita →</button>
-    <button class="btn btn-secondary" onclick="goHome()">Menu principale</button>
-  </div>
-</div>
+  <script>
+    const COLORS = [
+      { hex: '#34c759', dark: '#1a6b33' },
+      { hex: '#ff9f0a', dark: '#8a5200' },
+      { hex: '#ff3b30', dark: '#b01208' },
+      { hex: '#0071e3', dark: '#004a99' },
+      { hex: '#af52de', dark: '#6b2090' },
+      { hex: '#ff2d55', dark: '#99001e' },
+      { hex: '#5ac8fa', dark: '#006d99' },
+      { hex: '#636366', dark: '#3a3a3c' }
+    ];
 
-</div>
-<script>
-const COLORS=[{hex:'#34c759',dark:'#1a6b33'},{hex:'#ff9f0a',dark:'#8a5200'},{hex:'#ff3b30',dark:'#b01208'},{hex:'#0071e3',dark:'#004a99'},{hex:'#af52de',dark:'#6b2090'},{hex:'#ff2d55',dark:'#99001e'},{hex:'#5ac8fa',dark:'#006d99'},{hex:'#636366',dark:'#3a3a3c'}];
-const EMOJIS=['📦','⚡','🔥','🎯','🌊','🍀','💡','🎲','🌙','⭐','🎪','🧩','🎭','🏆','🌈','🦄'];
-const DEF_PACKETS=[
-{id:'easy',label:'Facile',emoji:'📦',colorIdx:0,lines:['Pizza,rotonda,mozzarella,Napoli','Gatto,fusa,baffi,sonnolento','Mare,salato,estate,onde','Bicicletta,ruote,pedali,ecologica','Sole,caldo,ovest,abbronzatura','Casa,tetto,finestre,comfort','Calcio,undici,portiere,pallone','Cane,abbaia,guinzaglio,fedele','Libro,pagine,silenzio,biblioteca','Telefono,schermo,ricarica,chiamate','Scuola,mattina,professori,compiti','Gelato,freddo,cono,estate','Treno,binari,vagoni,stazione','Film,cinema,attori,popcorn','Musica,cuffia,ritmo,melodia','Pane,forno,farina,colazione','Bosco,alberi,animali,resina','Macchina,ruote,patente,benzina','Letto,materasso,lenzuola,sonno','Festa,torta,ballo,amici','Cioccolato,dolce,cacao,fondente','Computer,tastiera,internet,schermo','Montagna,alta,sci,neve','Pesce,pinne,acqua,limone','Pallone,rotondo,calcio,aria','Dentista,denti,trapano,guanti','Supermercato,cibo,carrelli,cassa','Aereo,cielo,aeroporto,veloce','Piscina,nuoto,cloro,bagnino','Zaino,spalla,libri,scuola','Giardino,piante,erba,fiori','Vacanza,mare,riposo,valigia','Ristorante,cameriere,menu,cena','Stadio,tribune,tifosi,calcio','Compleanno,candeline,regali,torta','Notte,buio,stelle,luna','Spiaggia,sabbia,ombrellone,estate','Neve,bianca,fredda,pupazzo','Farfalla,ali,bruco,nettare','Colazione,mattino,latte,cereali','Biblioteca,libri,silenzio,prestito','Arcobaleno,pioggia,colori,arco','Castello,re,torri,fossato','Nonno,anziano,storie,capelli','Vespa,motorino,ruote,italiano','Tramonto,sera,arancione,orizzonte','Abbraccio,braccia,calore,affetto','Mercato,bancarelle,frutta,trattativa','Foresta,alberi,animali,verde','Palloncino,aria,colorato,festa']},
-{id:'medium',label:'Medio',emoji:'⚡',colorIdx:1,lines:['Nebbia,visibilita,acqua,padana','Coda,fila,supermercato,attesa','Semaforo,colori,traffico,verde','Multa,polizia,errore,soldi','Passaporto,viaggio,foto,scadenza','Banca,soldi,sportello,mutuo','Cappuccino,mattino,schiuma,cornetto','Termometro,temperatura,febbre,digitale','Rimorso,errore,negativo,passato','Insonnia,sveglio,notte,stress','Routine,quotidiano,sicurezza,abitudine','Confine,paesi,invisibile,passaporto','Quarantena,isolamento,casa,contagio','Canone,mensile,televisivo,fisso','Spazzatura,cassonetti,differenziata,odore','Interrogazione,professore,voce,paura','Sciroppo,malattia,dolce,cucchiaino','Bilancia,peso,bagno,zodiacale','Scontrino,cassa,pagamento,rimborso','Condominio,vicini,amministratore,rata','Riunione,lavoro,lunga,online','Abbonamento,mensile,contenuti,disdetta','Turismo,viaggio,economia,turisti','Psicologia,mente,ascolto,scienza','Fidanzamento,matrimonio,anello,famiglia','Pendolare,lavoro,treno,abbonamento','Anniversario,annuale,coppia,regalo','Meteo,pioggia,previsioni,sbaglia','Gita,classe,permesso,pullman','Pensione,lavoro,stato,anni','Detersivo,lavatrice,vestiti,profumo','Sciopero,lavoratori,diritti,treni','Prenotazione,anticipo,ristorante,disdetta','Alluvione,esondazione,case,disastro','Frigorifero,freddo,rumore,cibo','Tradimento,fiducia,dolore,perdono','Curiosita,domande,conoscenza,bambini','Pazienza,attesa,virtu,calma','Nostalgia,passato,dolceamara,musica','Pregiudizio,giudizio,ignoranza,danno','Turno,notturno,faticoso,medici','Debito,restituzione,ansia,banca','Trasloco,casa,scatoloni,stress','Audizione,cantare,giuria,selezione','Canzone,ritmo,doccia,tormentone','Ecologia,ambiente,riciclare,natura','Codice,lettere,numeri,burocrazia','Antenna,segnali,tetto,televisione','Alloggio,dormire,affitto,hotel','Carriera,lavoro,ambizione,scalata']},
-{id:'hard',label:'Difficile',emoji:'🔥',colorIdx:2,lines:['Eufemismo,linguaggio,retorica,addolcire','Ossimoro,contraddizione,retorica,paradosso','Narcisismo,specchio,mito,personalita','Inflazione,prezzi,banca,acquisto','Populismo,emozioni,elite,politica','Crowdfunding,online,donatori,progetto','Paradosso,assurdo,logica,filosofia','Astensionismo,voto,democrazia,disinteresse','Greenwashing,ecologia,inganno,aziendale','Lobbying,pressione,politici,interessi','Burocrazia,moduli,stato,Kafka','Blockchain,distribuito,criptovalute,immutabile','Panopticon,prigione,osservazione,potere','Dunning-Kruger,competenza,cognitivo,sopravvalutazione','Entropia,disordine,fisica,irreversibile','Placebo,medicina,mente,clinico','Framing,percezione,media,opinioni','Polarizzazione,estremi,social,divisione','Sorveglianza,dati,Snowden,telecamere','Populismo,emozioni,elite,voti','Metaverso,virtuale,visore,Facebook','Epistemologia,conoscenza,domande,filosofia','Arbitraggio,mercati,prezzo,investimento','Neuromarketing,cervello,risonanza,acquisto','Geopolitica,politica,potenze,conflitti','Keynesismo,stato,economia,Keynes','Tecnocrazia,esperti,democrazia,UE','Relativismo,culture,antropologia,etnocentrismo','Interdisciplinarita,discipline,complesso,convergenza','Postcolonialismo,colonialismo,culturale,Fanon','Feudalesimo,piattaforme,monopolio,controllo','Solutionismo,tecnologia,critica,Morozov','Deterrenza,minaccia,nucleare,MAD','Dissonanza,contraddizione,disagio,razionalizzare','Bias,errore,cognitivo,inconsapevole','Memoria,gruppo,guerra,collettiva','Entropia,disordine,irreversibile,fisica','Quantum,qubit,potente,crittografia','Circolo,problema,loop,vizioso','Pensiero,creativita,laterale,angoli','Paradigma,scienza,rivoluzione,Kuhn','Nudge,comportamento,scelta,psicologia','Verita,media,oggettiva,percezione','Algoritmo,regole,macchina,dati','Bolle,informazione,social,isolamento','Hype,entusiasmo,tecnologia,esagerazione','Resilienza,crisi,adattamento,forza','Empatia,sentimento,comprensione,ascolto','Dialettica,tesi,antitesi,sintesi','Ontologia,essere,esistenza,filosofia']},
-{id:'custom',label:'Custom',emoji:'🎲',colorIdx:3,lines:[]}
-];
+    const EMOJIS = ['📦', '⚡', '🔥', '🎯', '🌊', '🍀', '💡', '🎲', '🌙', '⭐', '🎪', '🧩', '🎭', '🏆', '🌈', '🦄'];
 
-let packets=[];
-function loadPackets(){const s=localStorage.getItem('imp_packs_v3');if(s){try{packets=JSON.parse(s);return;}catch(e){}}packets=DEF_PACKETS.map(p=>({...p,lines:[...p.lines]}));}
-function savePackets(){localStorage.setItem('imp_packs_v3',JSON.stringify(packets));}
-loadPackets();
-function getColor(p){return COLORS[p.colorIdx%COLORS.length];}
+    const DEF_PACKETS = [
+      { id: 'easy', label: 'Facile', emoji: '📦', colorIdx: 0, lines: ['Pizza,rotonda,mozzarella,Napoli', 'Gatto,fusa,baffi,sonnolento', 'Mare,salato,estate,onde', 'Bicicletta,ruote,pedali,ecologica', 'Sole,caldo,ovest,abbronzatura', 'Casa,tetto,finestre,comfort', 'Calcio,undici,portiere,pallone', 'Cane,abbaia,guinzaglio,fedele', 'Libro,pagine,silenzio,biblioteca', 'Telefono,schermo,ricarica,chiamate', 'Scuola,mattina,professori,compiti', 'Gelato,freddo,cono,estate', 'Treno,binari,vagoni,stazione', 'Film,cinema,attori,popcorn', 'Musica,cuffia,ritmo,melodia', 'Pane,forno,farina,colazione', 'Bosco,alberi,animali,resina', 'Macchina,ruote,patente,benzina', 'Letto,materasso,lenzuola,sonno', 'Festa,torta,ballo,amici', 'Cioccolato,dolce,cacao,fondente', 'Computer,tastiera,internet,schermo', 'Montagna,alta,sci,neve', 'Pesce,pinne,acqua,limone', 'Pallone,rotondo,calcio,aria', 'Dentista,denti,trapano,guanti', 'Supermercato,cibo,carrelli,cassa', 'Aereo,cielo,aeroporto,veloce', 'Piscina,nuoto,cloro,bagnino', 'Zaino,spalla,libri,scuola', 'Giardino,piante,erba,fiori', 'Vacanza,mare,riposo,valigia', 'Ristorante,cameriere,menu,cena', 'Stadio,tribune,tifosi,calcio', 'Compleanno,candeline,regali,torta', 'Notte,buio,stelle,luna', 'Spiaggia,sabbia,ombrellone,estate', 'Neve,bianca,fredda,pupazzo', 'Farfalla,ali,bruco,nettare', 'Colazione,mattino,latte,cereali', 'Biblioteca,libri,silenzio,prestito', 'Arcobaleno,pioggia,colori,arco', 'Castello,re,torri,fossato', 'Nonno,anziano,storie,capelli', 'Vespa,motorino,ruote,italiano', 'Tramonto,sera,arancione,orizzonte', 'Abbraccio,braccia,calore,affetto', 'Mercato,bancarelle,frutta,trattativa', 'Foresta,alberi,animali,verde', 'Palloncino,aria,colorato,festa'] },
+      { id: 'medium', label: 'Medio', emoji: '⚡', colorIdx: 1, lines: ['Nebbia,visibilita,acqua,padana', 'Coda,fila,supermercato,attesa', 'Semaforo,colori,traffico,verde', 'Multa,polizia,errore,soldi', 'Passaporto,viaggio,foto,scadenza', 'Banca,soldi,sportello,mutuo', 'Cappuccino,mattino,schiuma,cornetto', 'Termometro,temperatura,febbre,digitale', 'Rimorso,errore,negativo,passato', 'Insonnia,sveglio,notte,stress', 'Routine,quotidiano,sicurezza,abitudine', 'Confine,paesi,invisibile,passaporto', 'Quarantena,isolamento,casa,contagio', 'Canone,mensile,televisivo,fisso', 'Spazzatura,cassonetti,differenziata,odore', 'Interrogazione,professore,voce,paura', 'Sciroppo,malattia,dolce,cucchiaino', 'Bilancia,peso,bagno,zodiacale', 'Scontrino,cassa,pagamento,rimborso', 'Condominio,vicini,amministratore,rata', 'Riunione,lavoro,lunga,online', 'Abbonamento,mensile,contenuti,disdetta', 'Turismo,viaggio,economia,turisti', 'Psicologia,mente,ascolto,scienza', 'Fidanzamento,matrimonio,anello,famiglia', 'Pendolare,lavoro,treno,abbonamento', 'Anniversario,annuale,coppia,regalo', 'Meteo,pioggia,previsioni,sbaglia', 'Gita,classe,permesso,pullman', 'Pensione,lavoro,stato,anni', 'Detersivo,lavatrice,vestiti,profumo', 'Sciopero,lavoratori,diritti,treni', 'Prenotazione,anticipo,ristorante,disdetta', 'Alluvione,esondazione,case,disastro', 'Frigorifero,freddo,rumore,cibo', 'Tradimento,fiducia,dolore,perdono', 'Curiosita,domande,conoscenza,bambini', 'Pazienza,attesa,virtu,calma', 'Nostalgia,passato,dolceamara,musica', 'Pregiudizio,giudizio,ignoranza,danno', 'Turno,notturno,faticoso,medici', 'Debito,restituzione,ansia,banca', 'Trasloco,casa,scatoloni,stress', 'Audizione,cantare,giuria,selezione', 'Canzone,ritmo,doccia,tormentone', 'Ecologia,ambiente,riciclare,natura', 'Codice,lettere,numeri,burocrazia', 'Antenna,segnali,tetto,televisione', 'Alloggio,dormire,affitto,hotel', 'Carriera,lavoro,ambizione,scalata'] },
+      { id: 'hard', label: 'Difficile', emoji: '🔥', colorIdx: 2, lines: ['Eufemismo,linguaggio,retorica,addolcire', 'Ossimoro,contraddizione,retorica,paradosso', 'Narcisismo,specchio,mito,personalita', 'Inflazione,prezzi,banca,acquisto', 'Populismo,emozioni,elite,politica', 'Crowdfunding,online,donatori,progetto', 'Paradosso,assurdo,logica,filosofia', 'Astensionismo,voto,democrazia,disinteresse', 'Greenwashing,ecologia,inganno,aziendale', 'Lobbying,pressione,politici,interessi', 'Burocrazia,moduli,stato,Kafka', 'Blockchain,distribuito,criptovalute,immutabile', 'Panopticon,prigione,osservazione,potere', 'Dunning-Kruger,competenza,cognitivo,sopravvalutazione', 'Entropia,disordine,fisica,irreversibile', 'Placebo,medicina,mente,clinico', 'Framing,percezione,media,opinioni', 'Polarizzazione,estremi,social,divisione', 'Sorveglianza,dati,Snowden,telecamere', 'Populismo,emozioni,elite,voti', 'Metaverso,virtuale,visore,Facebook', 'Epistemologia,conoscenza,domande,filosofia', 'Arbitraggio,mercati,prezzo,investimento', 'Neuromarketing,cervello,risonanza,acquisto', 'Geopolitica,politica,potenze,conflitti', 'Keynesismo,stato,economia,Keynes', 'Tecnocrazia,esperti,democrazia,UE', 'Relativismo,culture,antropologia,etnocentrismo', 'Interdisciplinarita,discipline,complesso,convergenza', 'Postcolonialismo,colonialismo,culturale,Fanon', 'Feudalesimo,piattaforme,monopolio,controllo', 'Solutionismo,tecnologia,critica,Morozov', 'Deterrenza,minaccia,nucleare,MAD', 'Dissonanza,contraddizione,disagio,razionalizzare', 'Bias,errore,cognitivo,inconsapevole', 'Memoria,gruppo,guerra,collettiva', 'Entropia,disordine,irreversibile,fisica', 'Quantum,qubit,potente,crittografia', 'Circolo,problema,loop,vizioso', 'Pensiero,creativita,laterale,angoli', 'Paradigma,scienza,rivoluzione,Kuhn', 'Nudge,comportamento,scelta,psicologia', 'Verita,media,oggettiva,percezione', 'Algoritmo,regole,macchina,dati', 'Bolle,informazione,social,isolamento', 'Hype,entusiasmo,tecnologia,esagerazione', 'Resilienza,crisi,adattamento,forza', 'Empatia,sentimento,comprensione,ascolto', 'Dialettica,tesi,antitesi,sintesi', 'Ontologia,essere,esistenza,filosofia'] },
+      { id: 'custom', label: 'Custom', emoji: '🎲', colorIdx: 3, lines: [] }
+    ];
 
-const ST={playerCount:5,playerNames:[],impostorCount:1,mrWhiteCount:0,hintsEnabled:true,selectedPackIds:new Set(),players:[],currentPlayerIndex:0,secretWord:'',secretWordHints:[],votedOut:null};
-ST.selectedPackIds.add(packets[0]?.id||'easy');
+    let packets = [];
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+    function loadPackets() {
+      const stored = localStorage.getItem('imp_packs_v3');
+      if (stored) {
+        try {
+          packets = JSON.parse(stored);
+          return;
+        } catch (e) {}
+      }
+      packets = DEF_PACKETS.map(p => ({ ...p, lines: [...p.lines] }));
+    }
 
-function renderPlayerNames(){const list=document.getElementById('player-name-list');list.innerHTML='';for(let i=0;i<ST.playerCount;i++){const row=document.createElement('div');row.className='player-name-row';row.innerHTML=`<span class="player-index">${i+1}</span><input class="name-input" type="text" placeholder="Giocatore ${i+1}" value="${(ST.playerNames[i]||'').replace(/"/g,'&quot;')}" oninput="ST.playerNames[${i}]=this.value" onkeydown="if(event.key==='Enter'){const nx=document.querySelectorAll('.name-input')[${i+1}];if(nx)nx.focus();}"/>`;list.appendChild(row);}}
+    function savePackets() {
+      localStorage.setItem('imp_packs_v3', JSON.stringify(packets));
+    }
 
-function adjustPlayers(d){ST.playerCount=Math.max(3,Math.min(12,ST.playerCount+d));document.getElementById('player-count').textContent=ST.playerCount;clampRoles();renderPlayerNames();}
-function adjustImpostors(d){ST.impostorCount=Math.max(0,ST.impostorCount+d);clampRoles();}
-function adjustMrWhites(d){ST.mrWhiteCount=Math.max(0,ST.mrWhiteCount+d);clampRoles();}
-function clampRoles(){const max=ST.playerCount-1;if(ST.impostorCount+ST.mrWhiteCount>max){ST.impostorCount=Math.max(0,max-ST.mrWhiteCount);}if(ST.impostorCount<0)ST.impostorCount=0;if(ST.impostorCount+ST.mrWhiteCount===0)ST.impostorCount=1;document.getElementById('impostor-count').textContent=ST.impostorCount;document.getElementById('mrwhite-count').textContent=ST.mrWhiteCount;}
-function toggleHints(){ST.hintsEnabled=!ST.hintsEnabled;document.getElementById('toggle-hints').classList.toggle('on',ST.hintsEnabled);}
+    loadPackets();
 
-function renderHomePills(){const g=document.getElementById('home-packet-grid');g.innerHTML='';packets.forEach(p=>{const c=getColor(p);const sel=ST.selectedPackIds.has(p.id);const btn=document.createElement('button');btn.className='packet-pill';if(sel){btn.style.cssText=`border-color:${c.hex};background:${c.hex}1a;color:${c.dark};`;}btn.innerHTML=`<span class="dot" style="background:${sel?c.hex:'var(--text3)'};"></span>${p.emoji} ${p.label}`;btn.onclick=()=>toggleHomePack(p.id);g.appendChild(btn);});}
-function toggleHomePack(id){if(ST.selectedPackIds.has(id)){if(ST.selectedPackIds.size===1)return;ST.selectedPackIds.delete(id);}else{ST.selectedPackIds.add(id);}renderHomePills();}
+    function getColor(p) {
+      return COLORS[p.colorIdx % COLORS.length];
+    }
 
-function goSettings(){buildPacketEditors();showScreen('settings');}
+    const ST = {
+      playerCount: 5,
+      playerNames: [],
+      impostorCount: 1,
+      mrWhiteCount: 0,
+      hintsEnabled: true,
+      selectedPackIds: new Set(),
+      players: [],
+      currentPlayerIndex: 0,
+      secretWord: '',
+      secretWordHints: [],
+      votedOut: null
+    };
 
-function buildPacketEditors(){const wrap=document.getElementById('packet-editors');wrap.innerHTML='';packets.forEach(p=>wrap.appendChild(buildEditor(p)));}
+    ST.selectedPackIds.add(packets[0]?.id || 'easy');
 
-function buildEditor(p){
-  const c=getColor(p);
-  const isBuiltIn=['easy','medium','hard','custom'].includes(p.id);
-  const div=document.createElement('div');div.className='packet-item';div.id='pe-'+p.id;
-  const linesCount=p.lines.filter(l=>l.trim()).length;
-  div.innerHTML=`<div class="packet-header" onclick="togglePE('${p.id}')">
-    <div class="ph-left"><div class="pdot" style="background:${c.hex};"></div><span class="pname">${p.emoji} ${p.label}</span><span class="pcount" id="pc-${p.id}">${linesCount} voci</span></div>
-    <span class="pchev" id="pch-${p.id}">▾</span>
-  </div>
-  <div class="packet-body" id="pb-${p.id}">
-    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
-      <button class="emoji-btn" id="eb-${p.id}" onclick="toggleEP('${p.id}')">${p.emoji}</button>
-      <input class="packet-name-input" id="pni-${p.id}" value="${p.label.replace(/"/g,'&quot;')}" placeholder="Nome pacchetto" oninput="updatePName('${p.id}',this.value)">
-    </div>
-    <div class="ep-panel" id="epp-${p.id}">
-      <div class="emoji-picker">${EMOJIS.map((em,ei)=>`<button class="ep-opt${em===p.emoji?' sel':''}" onclick="pickEmoji('${p.id}','${em}')">${em}</button>`).join('')}</div>
-      <div class="color-picker">${COLORS.map((cc,ci)=>`<div class="cp-opt${ci===p.colorIdx?' sel':''}" style="background:${cc.hex};" onclick="pickColor('${p.id}',${ci})"></div>`).join('')}</div>
-    </div>
-    <textarea class="packet-textarea" id="pta-${p.id}" spellcheck="false" placeholder="pizza,rotonda,mozzarella,Napoli&#10;gelato,freddo,cono,estate">${p.lines.join('\n')}</textarea>
-    <div class="btn-row">
-      <button class="psave" onclick="savePacket('${p.id}',this)">Salva</button>
-      <button class="psave pgray" onclick="exportOne('${p.id}')" title="Esporta">⬆</button>
-      ${!isBuiltIn?`<button class="pdel" onclick="delPacket('${p.id}')">Elimina</button>`:''}
-    </div>
-  </div>`;
-  return div;
-}
+    // UI State Management
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + id).classList.add('active');
+      updateBottomNav(id);
+      window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+    }
 
-function togglePE(id){document.getElementById('pb-'+id).classList.toggle('open');document.getElementById('pch-'+id).classList.toggle('open');}
-function toggleEP(id){const p=document.getElementById('epp-'+id);p.style.display=p.style.display==='none'||!p.style.display?'block':'none';}
-function updatePName(id,v){const p=packets.find(x=>x.id===id);if(p){p.label=v;document.querySelector('#pe-'+id+' .pname').textContent=p.emoji+' '+v;}}
-function pickEmoji(id,em){const p=packets.find(x=>x.id===id);if(!p)return;p.emoji=em;document.getElementById('eb-'+id).textContent=em;document.querySelector('#pe-'+id+' .pname').textContent=em+' '+p.label;document.getElementById('epp-'+id).querySelectorAll('.ep-opt').forEach((el,i)=>el.classList.toggle('sel',EMOJIS[i]===em));}
-function pickColor(id,ci){const p=packets.find(x=>x.id===id);if(!p)return;p.colorIdx=ci;const c=getColor(p);document.querySelector('#pe-'+id+' .pdot').style.background=c.hex;document.getElementById('epp-'+id).querySelectorAll('.cp-opt').forEach((el,i)=>el.classList.toggle('sel',i===ci));}
-function savePacket(id,btn){const p=packets.find(x=>x.id===id);if(!p)return;const ni=document.getElementById('pni-'+id);if(ni)p.label=ni.value||p.label;p.lines=document.getElementById('pta-'+id).value.split('\n').map(l=>l.trim()).filter(Boolean);document.getElementById('pc-'+id).textContent=p.lines.length+' voci';savePackets();renderHomePills();btn.textContent='✓ Salvato';setTimeout(()=>btn.textContent='Salva',1400);}
-function delPacket(id){if(!confirm('Eliminare?'))return;packets=packets.filter(p=>p.id!==id);ST.selectedPackIds.delete(id);if(ST.selectedPackIds.size===0&&packets.length>0)ST.selectedPackIds.add(packets[0].id);savePackets();buildPacketEditors();renderHomePills();}
-function addCustomPacket(){const id='c_'+Date.now();packets.push({id,label:'Nuovo pacchetto',emoji:'📦',colorIdx:3,lines:[]});savePackets();buildPacketEditors();setTimeout(()=>{togglePE(id);document.getElementById('pni-'+id).focus();},60);}
-function exportOne(id){const p=packets.find(x=>x.id===id);if(!p)return;dlJSON([p],p.label+'.json');}
-function exportAllPackets(){dlJSON(packets,'impostore_pacchetti.json');}
-function dlJSON(data,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download=name;a.click();}
-function importPackets(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{let arr=JSON.parse(ev.target.result);if(!Array.isArray(arr))arr=[arr];arr.forEach(p=>{if(!p.id||!p.label||!Array.isArray(p.lines))return;if(packets.find(x=>x.id===p.id))p.id=p.id+'_'+Date.now();if(p.colorIdx===undefined)p.colorIdx=3;if(!p.emoji)p.emoji='📦';packets.push(p);});savePackets();buildPacketEditors();renderHomePills();alert('Importati '+arr.length+' pacchetti!');}catch(err){alert('Errore nel file JSON.');}};r.readAsText(f);e.target.value='';}
+    function updateBottomNav(screenId) {
+      const nav = document.getElementById('nav-buttons');
+      nav.innerHTML = '';
 
-function parseLine(l){const pts=l.split(',').map(s=>s.trim());return{word:pts[0]||'',hints:pts.slice(1,4).filter(Boolean)};}
+      if (screenId === 'cover') {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Sono pronto →';
+        btn.id = 'btn-reveal';
+        nav.appendChild(btn);
+        document.getElementById('bottom-nav').classList.add('active');
+      } else if (screenId === 'reveal') {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Copri e passa →';
+        btn.id = 'btn-next-player';
+        nav.appendChild(btn);
+        document.getElementById('bottom-nav').classList.add('active');
+      } else if (screenId === 'vote') {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Conferma eliminazione';
+        btn.id = 'btn-confirm-vote';
+        nav.appendChild(btn);
+        document.getElementById('bottom-nav').classList.add('active');
+      } else if (screenId === 'civilian-elim') {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Continua il gioco →';
+        btn.id = 'btn-continue-civilian';
+        nav.appendChild(btn);
+        document.getElementById('bottom-nav').classList.add('active');
+      } else if (screenId === 'mrwhite-guess') {
+        const group = document.createElement('div');
+        group.className = 'btn-group';
+        group.innerHTML = `
+          <button class="btn btn-primary" id="btn-mrwhite-confirm">Conferma risposta</button>
+          <button class="btn btn-secondary" id="btn-mrwhite-giveup">Rinuncia</button>
+        `;
+        nav.appendChild(group);
+        document.getElementById('bottom-nav').classList.add('active');
+      } else if (screenId === 'result') {
+        const group = document.createElement('div');
+        group.className = 'btn-group';
+        group.innerHTML = `
+          <button class="btn btn-primary" id="btn-new-round">Nuova partita →</button>
+          <button class="btn btn-secondary" id="btn-go-home">Menu principale</button>
+        `;
+        nav.appendChild(group);
+        document.getElementById('bottom-nav').classList.add('active');
+      } else {
+        document.getElementById('bottom-nav').classList.remove('active');
+      }
 
-function pickWord(){const pool=[];for(const id of ST.selectedPackIds){const p=packets.find(x=>x.id===id);if(!p)continue;p.lines.forEach(l=>{if(l.trim())pool.push(parseLine(l));});}if(!pool.length){alert('Nessuna parola disponibile!');return false;}const e=pool[Math.floor(Math.random()*pool.length)];ST.secretWord=e.word;ST.secretWordHints=e.hints;return true;}
+      document.body.classList.toggle('has-bottom-nav',
+        document.getElementById('bottom-nav').classList.contains('active'));
 
-function buildPlayers(){const total=ST.playerCount;const roles=[];for(let i=0;i<ST.impostorCount;i++)roles.push('impostor');for(let i=0;i<ST.mrWhiteCount;i++)roles.push('mrwhite');while(roles.length<total)roles.push('civilian');for(let i=roles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[roles[i],roles[j]]=[roles[j],roles[i]];}let slot=0;ST.players=roles.map((role,i)=>{const name=(ST.playerNames[i]||'').trim()||`Giocatore ${i+1}`;const hintIndex=role==='impostor'?(slot++%3):null;return{name,role,eliminated:false,hintIndex};});ST.currentPlayerIndex=0;ST.votedOut=null;}
+      attachBottomNavListeners();
+    }
 
-function startGame(){if(!pickWord())return;buildPlayers();showCover();}
-function newRound(){if(!pickWord())return;buildPlayers();showCover();}
+    function attachBottomNavListeners() {
+      const listeners = {
+        'btn-reveal': revealRole,
+        'btn-next-player': nextPlayer,
+        'btn-confirm-vote': confirmVote,
+        'btn-continue-civilian': continueAfterCivilian,
+        'btn-mrwhite-confirm': checkMrWhiteGuess,
+        'btn-mrwhite-giveup': mrwhiteGiveUp,
+        'btn-new-round': newRound,
+        'btn-go-home': goHome
+      };
 
-function setPB(id,pct){const el=document.getElementById(id);if(el)el.style.width=pct+'%';}
-function playerPct(){return((ST.currentPlayerIndex+1)/ST.playerCount)*100;}
+      Object.entries(listeners).forEach(([id, fn]) => {
+        const el = document.getElementById(id);
+        if (el) el.onclick = fn;
+      });
+    }
 
-function showCover(){const p=ST.players[ST.currentPlayerIndex];document.getElementById('cover-title').textContent=`Passa il telefono a ${p.name}`;document.getElementById('cover-info').textContent=`${ST.currentPlayerIndex+1} di ${ST.playerCount}`;setPB('cover-pb',playerPct());showScreen('cover');}
+    // Home Screen
+    function renderPlayerNames() {
+      const list = document.getElementById('player-name-list');
+      list.innerHTML = '';
+      for (let i = 0; i < ST.playerCount; i++) {
+        const row = document.createElement('div');
+        row.className = 'player-name-row';
+        const input = document.createElement('input');
+        input.className = 'name-input';
+        input.type = 'text';
+        input.placeholder = 'Giocatore ' + (i + 1);
+        input.value = ST.playerNames[i] || '';
+        input.oninput = (e) => { ST.playerNames[i] = e.target.value; };
+        input.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            const next = document.querySelectorAll('.name-input')[i + 1];
+            if (next) next.focus();
+          }
+        };
+        row.innerHTML = `<span class="player-index">${i + 1}</span>`;
+        row.appendChild(input);
+        list.appendChild(row);
+      }
+    }
 
-function revealRole(){const idx=ST.currentPlayerIndex;const p=ST.players[idx];setPB('reveal-pb',playerPct());document.getElementById('reveal-info').textContent=`${idx+1} di ${ST.playerCount} giocatori`;
-let html=`<div class="player-number">${p.name}</div>`;
-if(p.role==='civilian'){html+=`<div class="role-icon civilian">🟢</div><div class="role-badge civilian">Civile</div><div class="role-word">${ST.secretWord}</div><p class="role-sub">Questa è la tua parola. Difendila senza rivelarla!</p>`;}
-else if(p.role==='impostor'){html+=`<div class="role-icon impostor">🔴</div><div class="role-badge impostor">Impostore</div><div class="role-word">???</div><p class="role-sub">Non conosci la parola. Fingila bene!</p>`;if(ST.hintsEnabled&&ST.secretWordHints.length>0){const h=ST.secretWordHints[(p.hintIndex??0)%ST.secretWordHints.length];html+=`<div class="hint-solo"><div class="hint-label">💡 Il tuo indizio</div><div class="hint-text">${h}</div></div>`;}}
-else{html+=`<div class="role-icon mrwhite">⚪️</div><div class="role-badge mrwhite">Mr. White</div><div class="role-word">???</div><p class="role-sub">Non hai parola né indizi. Ascolta tutti e prova a indovinare se vieni eliminato!</p>`;}
-document.getElementById('player-card').innerHTML=html;showScreen('reveal');}
+    function adjustPlayers(d) {
+      ST.playerCount = Math.max(3, Math.min(12, ST.playerCount + d));
+      document.getElementById('player-count').textContent = ST.playerCount;
+      clampRoles();
+      renderPlayerNames();
+    }
 
-function nextPlayer(){ST.currentPlayerIndex++;if(ST.currentPlayerIndex>=ST.playerCount)showVoteScreen();else showCover();}
+    function adjustImpostors(d) {
+      ST.impostorCount = Math.max(0, ST.impostorCount + d);
+      clampRoles();
+    }
 
-function showVoteScreen(){ST.votedOut=null;const list=document.getElementById('vote-list');list.innerHTML='';ST.players.forEach((p,i)=>{if(p.eliminated)return;const div=document.createElement('div');div.className='player-vote-item';div.id='vi-'+i;div.onclick=()=>selectVote(i);div.innerHTML=`<span class="player-vote-name">${p.name}</span><div class="vote-check" id="vc-${i}"></div>`;list.appendChild(div);});showScreen('vote');}
+    function adjustMrWhites(d) {
+      ST.mrWhiteCount = Math.max(0, ST.mrWhiteCount + d);
+      clampRoles();
+    }
 
-function selectVote(idx){document.querySelectorAll('.player-vote-item').forEach(el=>el.classList.remove('selected'));document.querySelectorAll('.vote-check').forEach(el=>el.textContent='');document.getElementById('vi-'+idx).classList.add('selected');document.getElementById('vc-'+idx).textContent='✓';ST.votedOut=idx;}
-function cancelVote(){ST.currentPlayerIndex=0;showCover();}
+    function clampRoles() {
+      const max = ST.playerCount - 1;
+      if (ST.impostorCount + ST.mrWhiteCount > max) {
+        ST.impostorCount = Math.max(0, max - ST.mrWhiteCount);
+      }
+      if (ST.impostorCount < 0) ST.impostorCount = 0;
+      if (ST.impostorCount + ST.mrWhiteCount === 0) ST.impostorCount = 1;
+      document.getElementById('impostor-count').textContent = ST.impostorCount;
+      document.getElementById('mrwhite-count').textContent = ST.mrWhiteCount;
+    }
 
-function confirmVote(){if(ST.votedOut===null){alert('Seleziona un giocatore!');return;}const el=ST.players[ST.votedOut];el.eliminated=true;if(el.role==='civilian'){document.getElementById('civ-elim-name').textContent=el.name;showScreen('civilian-elim');}else if(el.role==='mrwhite'){document.getElementById('mrwhite-guess-input').value='';showScreen('mrwhite-guess');}else{checkWin();}}
+    function toggleHints() {
+      ST.hintsEnabled = !ST.hintsEnabled;
+      document.getElementById('toggle-hints').classList.toggle('on', ST.hintsEnabled);
+    }
 
-function continueAfterCivilian(){checkWin();}
+    function renderHomePills() {
+      const g = document.getElementById('home-packet-grid');
+      g.innerHTML = '';
+      packets.forEach(p => {
+        const c = getColor(p);
+        const sel = ST.selectedPackIds.has(p.id);
+        const btn = document.createElement('button');
+        btn.className = 'packet-pill';
+        if (sel) {
+          btn.style.cssText = `border-color:${c.hex};background:${c.hex}1a;color:${c.dark};`;
+        }
+        btn.innerHTML = `<span class="dot" style="background:${sel ? c.hex : 'var(--text3)'};"></span>${p.emoji} ${p.label}`;
+        btn.onclick = () => toggleHomePack(p.id);
+        g.appendChild(btn);
+      });
+    }
 
-function checkMrWhiteGuess(){const g=document.getElementById('mrwhite-guess-input').value.trim().toLowerCase();if(!g)return;if(g===ST.secretWord.toLowerCase()){showResult('mrwhite-win');}else{checkWin();}}
-function mrwhiteGiveUp(){checkWin();}
+    function toggleHomePack(id) {
+      if (ST.selectedPackIds.has(id)) {
+        if (ST.selectedPackIds.size === 1) return;
+        ST.selectedPackIds.delete(id);
+      } else {
+        ST.selectedPackIds.add(id);
+      }
+      renderHomePills();
+    }
 
-function checkWin(){const alive=ST.players.filter(p=>!p.eliminated);const aI=alive.filter(p=>p.role==='impostor');const aMW=alive.filter(p=>p.role==='mrwhite');const aC=alive.filter(p=>p.role==='civilian');if(aI.length===0&&aMW.length===0){showResult('civilians');return;}if(aI.length>=aC.length){showResult('impostors');return;}showVoteScreen();}
+    // Settings Screen
+    function goSettings() {
+      buildPacketEditors();
+      showScreen('settings');
+    }
 
-function showResult(outcome){let emoji,title,sub;if(outcome==='civilians'){emoji='🎉';title='I civili vincono!';sub='Avete smascherato tutti gli impostori!';}else if(outcome==='impostors'){emoji='😈';title='Gli impostori vincono!';sub='Siete stati ingannati. Gli impostori l\'hanno spuntata.';}else{emoji='⚪️';title='Mr. White vince!';sub='Ha indovinato la parola segreta. Genio del bluff!';}
-const iN=ST.players.filter(p=>p.role==='impostor').map(p=>p.name).join(', ');const mwN=ST.players.filter(p=>p.role==='mrwhite').map(p=>p.name).join(', ');
-let rows=`<div class="info-row"><span>Parola segreta</span><span><strong>${ST.secretWord}</strong></span></div><div class="info-row"><span>Impostori</span><span class="tag-i">${iN||'—'}</span></div>`;
-if(mwN)rows+=`<div class="info-row"><span>Mr. White</span><span class="tag-mw">${mwN}</span></div>`;
-document.getElementById('result-card').innerHTML=`<div class="result-emoji">${emoji}</div><div class="result-title">${title}</div><div class="result-sub">${sub}</div><div style="margin-top:8px;">${rows}</div>`;showScreen('result');}
+    function buildPacketEditors() {
+      const wrap = document.getElementById('packet-editors');
+      wrap.innerHTML = '';
+      packets.forEach(p => wrap.appendChild(buildEditor(p)));
+    }
 
-function goHome(){showScreen('home');}
+    function buildEditor(p) {
+      const c = getColor(p);
+      const isBuiltIn = ['easy', 'medium', 'hard', 'custom'].includes(p.id);
+      const div = document.createElement('div');
+      div.className = 'packet-item';
+      div.id = 'pe-' + p.id;
+      const linesCount = p.lines.filter(l => l.trim()).length;
+      div.innerHTML = `<div class="packet-header" onclick="togglePE('${p.id}')">
+        <div class="ph-left"><div class="pdot" style="background:${c.hex};"></div><span class="pname">${p.emoji} ${p.label}</span><span class="pcount" id="pc-${p.id}">${linesCount} voci</span></div>
+        <span class="pchev" id="pch-${p.id}">▾</span>
+      </div>
+      <div class="packet-body" id="pb-${p.id}">
+        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+          <button class="emoji-btn" id="eb-${p.id}" onclick="toggleEP('${p.id}')">${p.emoji}</button>
+          <input class="packet-name-input" id="pni-${p.id}" value="${p.label.replace(/"/g, '&quot;')}" placeholder="Nome pacchetto" oninput="updatePName('${p.id}',this.value)">
+        </div>
+        <div class="ep-panel" id="epp-${p.id}">
+          <div class="emoji-picker">${EMOJIS.map((em, ei) => `<button class="ep-opt${em === p.emoji ? ' sel' : ''}" onclick="pickEmoji('${p.id}','${em}')">${em}</button>`).join('')}</div>
+          <div class="color-picker">${COLORS.map((cc, ci) => `<div class="cp-opt${ci === p.colorIdx ? ' sel' : ''}" style="background:${cc.hex};" onclick="pickColor('${p.id}',${ci})"></div>`).join('')}</div>
+        </div>
+        <textarea class="packet-textarea" id="pta-${p.id}" spellcheck="false" placeholder="pizza,rotonda,mozzarella,Napoli&#10;gelato,freddo,cono,estate">${p.lines.join('\n')}</textarea>
+        <div class="btn-row">
+          <button class="psave" onclick="savePacket('${p.id}',this)">Salva</button>
+          <button class="psave pgray" onclick="exportOne('${p.id}')" title="Esporta">⬆</button>
+          ${!isBuiltIn ? `<button class="pdel" onclick="delPacket('${p.id}')">Elimina</button>` : ''}
+        </div>
+      </div>`;
+      return div;
+    }
 
-renderPlayerNames();
-renderHomePills();
-</script>
+    function togglePE(id) {
+      document.getElementById('pb-' + id).classList.toggle('open');
+      document.getElementById('pch-' + id).classList.toggle('open');
+    }
+
+    function toggleEP(id) {
+      const p = document.getElementById('epp-' + id);
+      p.style.display = p.style.display === 'none' || !p.style.display ? 'block' : 'none';
+    }
+
+    function updatePName(id, v) {
+      const p = packets.find(x => x.id === id);
+      if (p) {
+        p.label = v;
+        document.querySelector('#pe-' + id + ' .pname').textContent = p.emoji + ' ' + v;
+      }
+    }
+
+    function pickEmoji(id, em) {
+      const p = packets.find(x => x.id === id);
+      if (!p) return;
+      p.emoji = em;
+      document.getElementById('eb-' + id).textContent = em;
+      document.querySelector('#pe-' + id + ' .pname').textContent = em + ' ' + p.label;
+      document.getElementById('epp-' + id).querySelectorAll('.ep-opt').forEach((el, i) => el.classList.toggle('sel', EMOJIS[i] === em));
+    }
+
+    function pickColor(id, ci) {
+      const p = packets.find(x => x.id === id);
+      if (!p) return;
+      p.colorIdx = ci;
+      const c = getColor(p);
+      document.querySelector('#pe-' + id + ' .pdot').style.background = c.hex;
+      document.getElementById('epp-' + id).querySelectorAll('.cp-opt').forEach((el, i) => el.classList.toggle('sel', i === ci));
+    }
+
+    function savePacket(id, btn) {
+      const p = packets.find(x => x.id === id);
+      if (!p) return;
+      const ni = document.getElementById('pni-' + id);
+      if (ni) p.label = ni.value || p.label;
+      p.lines = document.getElementById('pta-' + id).value.split('\n').map(l => l.trim()).filter(Boolean);
+      document.getElementById('pc-' + id).textContent = p.lines.length + ' voci';
+      savePackets();
+      renderHomePills();
+      btn.textContent = '✓ Salvato';
+      setTimeout(() => btn.textContent = 'Salva', 1400);
+    }
+
+    function delPacket(id) {
+      if (!confirm('Eliminare?')) return;
+      packets = packets.filter(p => p.id !== id);
+      ST.selectedPackIds.delete(id);
+      if (ST.selectedPackIds.size === 0 && packets.length > 0) ST.selectedPackIds.add(packets[0].id);
+      savePackets();
+      buildPacketEditors();
+      renderHomePills();
+    }
+
+    function addCustomPacket() {
+      const id = 'c_' + Date.now();
+      packets.push({ id, label: 'Nuovo pacchetto', emoji: '📦', colorIdx: 3, lines: [] });
+      savePackets();
+      buildPacketEditors();
+      setTimeout(() => {
+        togglePE(id);
+        document.getElementById('pni-' + id).focus();
+      }, 60);
+    }
+
+    function exportOne(id) {
+      const p = packets.find(x => x.id === id);
+      if (!p) return;
+      dlJSON([p], p.label + '.json');
+    }
+
+    function exportAllPackets() {
+      dlJSON(packets, 'impostore_pacchetti.json');
+    }
+
+    function dlJSON(data, name) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+      a.download = name;
+      a.click();
+    }
+
+    function importPackets(e) {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        try {
+          let arr = JSON.parse(ev.target.result);
+          if (!Array.isArray(arr)) arr = [arr];
+          arr.forEach(p => {
+            if (!p.id || !p.label || !Array.isArray(p.lines)) return;
+            if (packets.find(x => x.id === p.id)) p.id = p.id + '_' + Date.now();
+            if (p.colorIdx === undefined) p.colorIdx = 3;
+            if (!p.emoji) p.emoji = '📦';
+            packets.push(p);
+          });
+          savePackets();
+          buildPacketEditors();
+          renderHomePills();
+          alert('Importati ' + arr.length + ' pacchetti!');
+        } catch (err) {
+          alert('Errore nel file JSON.');
+        }
+      };
+      r.readAsText(f);
+      e.target.value = '';
+    }
+
+    // Game Logic
+    function parseLine(l) {
+      const pts = l.split(',').map(s => s.trim());
+      return { word: pts[0] || '', hints: pts.slice(1, 4).filter(Boolean) };
+    }
+
+    function pickWord() {
+      const pool = [];
+      for (const id of ST.selectedPackIds) {
+        const p = packets.find(x => x.id === id);
+        if (!p) continue;
+        p.lines.forEach(l => {
+          if (l.trim()) pool.push(parseLine(l));
+        });
+      }
+      if (!pool.length) {
+        alert('Nessuna parola disponibile!');
+        return false;
+      }
+      const e = pool[Math.floor(Math.random() * pool.length)];
+      ST.secretWord = e.word;
+      ST.secretWordHints = e.hints;
+      return true;
+    }
+
+    function buildPlayers() {
+      const total = ST.playerCount;
+      const roles = [];
+      for (let i = 0; i < ST.impostorCount; i++) roles.push('impostor');
+      for (let i = 0; i < ST.mrWhiteCount; i++) roles.push('mrwhite');
+      while (roles.length < total) roles.push('civilian');
+      for (let i = roles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [roles[i], roles[j]] = [roles[j], roles[i]];
+      }
+      let slot = 0;
+      ST.players = roles.map((role, i) => {
+        const name = (ST.playerNames[i] || '').trim() || `Giocatore ${i + 1}`;
+        const hintIndex = role === 'impostor' ? (slot++ % 3) : null;
+        return { name, role, eliminated: false, hintIndex };
+      });
+      ST.currentPlayerIndex = 0;
+      ST.votedOut = null;
+    }
+
+    function startGame() {
+      if (!pickWord()) return;
+      buildPlayers();
+      showCover();
+    }
+
+    function newRound() {
+      if (!pickWord()) return;
+      buildPlayers();
+      showCover();
+    }
+
+    function setPB(id, pct) {
+      const el = document.getElementById(id);
+      if (el) el.style.width = pct + '%';
+    }
+
+    function playerPct() {
+      return ((ST.currentPlayerIndex + 1) / ST.playerCount) * 100;
+    }
+
+    function showCover() {
+      const p = ST.players[ST.currentPlayerIndex];
+      document.getElementById('cover-title').textContent = `Passa il telefono a ${p.name}`;
+      setPB('cover-pb', playerPct());
+      showScreen('cover');
+    }
+
+    function revealRole() {
+      const idx = ST.currentPlayerIndex;
+      const p = ST.players[idx];
+      setPB('reveal-pb', playerPct());
+      let html = `<div class="player-number">${p.name}</div>`;
+      if (p.role === 'civilian') {
+        html += `<div class="role-icon civilian">🟢</div><div class="role-badge civilian">Civile</div><div class="role-word">${ST.secretWord}</div><p class="role-sub">Questa è la tua parola. Difendila senza rivelarla!</p>`;
+      } else if (p.role === 'impostor') {
+        html += `<div class="role-icon impostor">🔴</div><div class="role-badge impostor">Impostore</div><div class="role-word">???</div><p class="role-sub">Non conosci la parola. Fingila bene!</p>`;
+        if (ST.hintsEnabled && ST.secretWordHints.length > 0) {
+          const h = ST.secretWordHints[(p.hintIndex ?? 0) % ST.secretWordHints.length];
+          html += `<div class="hint-solo"><div class="hint-label">💡 Il tuo indizio</div><div class="hint-text">${h}</div></div>`;
+        }
+      } else {
+        html += `<div class="role-icon mrwhite">⚪️</div><div class="role-badge mrwhite">Mr. White</div><div class="role-word">???</div><p class="role-sub">Non hai parola né indizi. Ascolta tutti e prova a indovinare se vieni eliminato!</p>`;
+      }
+      const card = document.getElementById('player-card');
+      card.innerHTML = html;
+      card.style.animation = 'none';
+      void card.offsetWidth;
+      card.style.animation = '';
+      showScreen('reveal');
+    }
+
+    function nextPlayer() {
+      ST.currentPlayerIndex++;
+      if (ST.currentPlayerIndex >= ST.playerCount) showVoteScreen();
+      else showCover();
+    }
+
+    function showVoteScreen() {
+      ST.votedOut = null;
+      const list = document.getElementById('vote-list');
+      list.innerHTML = '';
+      ST.players.forEach((p, i) => {
+        if (p.eliminated) return;
+        const div = document.createElement('div');
+        div.className = 'player-vote-item';
+        div.id = 'vi-' + i;
+        div.onclick = () => selectVote(i);
+        div.innerHTML = `<span class="player-vote-name">${p.name}</span><div class="vote-check" id="vc-${i}"></div>`;
+        list.appendChild(div);
+      });
+      showScreen('vote');
+    }
+
+    function selectVote(idx) {
+      document.querySelectorAll('.player-vote-item').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('.vote-check').forEach(el => el.textContent = '');
+      document.getElementById('vi-' + idx).classList.add('selected');
+      document.getElementById('vc-' + idx).textContent = '✓';
+      ST.votedOut = idx;
+    }
+
+    function confirmVote() {
+      if (ST.votedOut === null) {
+        alert('Seleziona un giocatore!');
+        return;
+      }
+      const el = ST.players[ST.votedOut];
+      el.eliminated = true;
+      if (el.role === 'civilian') {
+        document.getElementById('civ-elim-name').textContent = el.name;
+        showScreen('civilian-elim');
+      } else if (el.role === 'mrwhite') {
+        document.getElementById('mrwhite-guess-input').value = '';
+        showScreen('mrwhite-guess');
+      } else {
+        checkWin();
+      }
+    }
+
+    function continueAfterCivilian() {
+      checkWin();
+    }
+
+    function checkMrWhiteGuess() {
+      const g = document.getElementById('mrwhite-guess-input').value.trim().toLowerCase();
+      if (!g) return;
+      if (g === ST.secretWord.toLowerCase()) {
+        showResult('mrwhite-win');
+      } else {
+        checkWin();
+      }
+    }
+
+    function mrwhiteGiveUp() {
+      checkWin();
+    }
+
+    function checkWin() {
+      const alive = ST.players.filter(p => !p.eliminated);
+      const aI = alive.filter(p => p.role === 'impostor');
+      const aMW = alive.filter(p => p.role === 'mrwhite');
+      const aC = alive.filter(p => p.role === 'civilian');
+      if (aI.length === 0 && aMW.length === 0) {
+        showResult('civilians');
+        return;
+      }
+      if (aI.length >= aC.length) {
+        showResult('impostors');
+        return;
+      }
+      showVoteScreen();
+    }
+
+    function showResult(outcome) {
+      let emoji, title, sub;
+      if (outcome === 'civilians') {
+        emoji = '🎉';
+        title = 'I civili vincono!';
+        sub = 'Avete smascherato tutti gli impostori!';
+      } else if (outcome === 'impostors') {
+        emoji = '😈';
+        title = 'Gli impostori vincono!';
+        sub = "Siete stati ingannati. Gli impostori l'hanno spuntata.";
+      } else {
+        emoji = '⚪️';
+        title = 'Mr. White vince!';
+        sub = 'Ha indovinato la parola segreta. Genio del bluff!';
+      }
+      const iN = ST.players.filter(p => p.role === 'impostor').map(p => p.name).join(', ');
+      const mwN = ST.players.filter(p => p.role === 'mrwhite').map(p => p.name).join(', ');
+      let rows = `<div class="info-row"><span>Parola segreta</span><span><strong>${ST.secretWord}</strong></span></div><div class="info-row"><span>Impostori</span><span class="tag-i">${iN || '—'}</span></div>`;
+      if (mwN) rows += `<div class="info-row"><span>Mr. White</span><span class="tag-mw">${mwN}</span></div>`;
+      document.getElementById('result-card').innerHTML = `<div class="result-emoji">${emoji}</div><div class="result-title">${title}</div><div class="result-sub">${sub}</div><div style="margin-top:var(--spacing-sm);">${rows}</div>`;
+      showScreen('result');
+    }
+
+    function goHome() {
+      showScreen('home');
+    }
+
+    // Event Listeners Setup
+    document.getElementById('btn-players-minus').onclick = () => adjustPlayers(-1);
+    document.getElementById('btn-players-plus').onclick = () => adjustPlayers(1);
+    document.getElementById('btn-impostors-minus').onclick = () => adjustImpostors(-1);
+    document.getElementById('btn-impostors-plus').onclick = () => adjustImpostors(1);
+    document.getElementById('btn-mrwhites-minus').onclick = () => adjustMrWhites(-1);
+    document.getElementById('btn-mrwhites-plus').onclick = () => adjustMrWhites(1);
+    document.getElementById('toggle-hints').onclick = toggleHints;
+    document.getElementById('btn-settings').onclick = goSettings;
+    document.getElementById('btn-start').onclick = startGame;
+    document.getElementById('btn-settings-back').onclick = () => {
+      showScreen('home');
+      renderHomePills();
+    };
+    document.getElementById('btn-export-all').onclick = exportAllPackets;
+    document.getElementById('file-import').onchange = importPackets;
+    document.getElementById('btn-add-packet').onclick = addCustomPacket;
+
+    // Initialize UI
+    renderPlayerNames();
+    renderHomePills();
+  </script>
 </body>
 </html>
