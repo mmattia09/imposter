@@ -192,11 +192,30 @@ body.has-bottom-nav {
 }
 
 .role-col-l {
-  padding-right: var(--spacing-xl);
+  padding-right: var(--spacing-md);
 }
 
 .role-col-r {
-  padding-left: var(--spacing-xl);
+  padding-left: var(--spacing-md);
+}
+
+.roles-grid .stepper {
+  gap: var(--spacing-sm);
+}
+
+.roles-grid .step-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+}
+
+.roles-grid .step-value {
+  font-size: 22px;
+  min-width: 32px;
+}
+
+.roles-grid .step-label {
+  font-size: 12px;
 }
 
 /* Toggle */
