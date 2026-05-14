@@ -44,12 +44,6 @@ function savePlayerNames() {
   localStorage.setItem('imp_names', JSON.stringify(ST.playerNames));
 }
 
-function clearNames() {
-  ST.playerNames = [];
-  localStorage.removeItem('imp_names');
-  renderPlayerNames();
-}
-
 function getColor(p) {
   return COLORS[p.colorIdx % COLORS.length];
 }
@@ -173,8 +167,15 @@ function renderPlayerNames() {
         if (next) next.focus();
       }
     };
+    const delBtn = document.createElement('button');
+    delBtn.className = 'name-delete-btn';
+    delBtn.type = 'button';
+    delBtn.textContent = '×';
+    delBtn.title = 'Rimuovi nome';
+    delBtn.onclick = () => { ST.playerNames[i] = ''; savePlayerNames(); renderPlayerNames(); };
     row.innerHTML = `<span class="player-index">${i + 1}</span>`;
     row.appendChild(input);
+    row.appendChild(delBtn);
     list.appendChild(row);
   }
 }
@@ -624,7 +625,6 @@ document.getElementById('btn-settings-back').onclick = () => {
 };
 document.getElementById('btn-export-all').onclick = exportAllPackets;
 document.getElementById('file-import').onchange = importPackets;
-document.getElementById('btn-clear-names').onclick = clearNames;
 document.getElementById('btn-reveal-exit').onclick = () => { if (confirm('Uscire dalla partita?')) goHome(); };
 document.getElementById('btn-vote-exit').onclick = () => { if (confirm('Uscire dalla partita?')) goHome(); };
 document.getElementById('btn-add-packet').onclick = addCustomPacket;
