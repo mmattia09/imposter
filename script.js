@@ -24,6 +24,8 @@ const EMOJIS = [
 ];
 
 let packets = [];
+let draggedPlayerIndex = null;
+let pointerDropPlayerIndex = null;
 
 const DEFAULT_PACKET_FILES = [
   'packet-easy',
@@ -195,9 +197,22 @@ function renderPlayerNames() {
   for (let i = 0; i < ST.playerCount; i++) {
     const row = document.createElement('div');
     row.className = 'player-name-row';
+    row.dataset.index = i;
+    row.draggable = true;
+    row.ondragstart = e => startPlayerDrag(e, i);
+    row.ondragover = e => e.preventDefault();
+    row.ondrop = e => dropPlayer(e, i);
+    row.ondragend = clearPlayerDragState;
+    const dragBtn = document.createElement('button');
+    dragBtn.className = 'name-drag-btn';
+    dragBtn.type = 'button';
+    dragBtn.textContent = '☰';
+    dragBtn.title = 'Trascina per riordinare';
+    dragBtn.onpointerdown = e => startPlayerPointerDrag(e, i);
     const input = document.createElement('input');
     input.className = 'name-input';
     input.type = 'text';
+    input.draggable = false;
     input.placeholder = 'Giocatore ' + (i + 1);
     input.value = ST.playerNames[i] || '';
     input.oninput = (e) => { ST.playerNames[i] = e.target.value; savePlayerNames(); };
@@ -214,10 +229,75 @@ function renderPlayerNames() {
     delBtn.title = 'Rimuovi nome';
     delBtn.onclick = () => removePlayer(i);
     row.innerHTML = `<span class="player-index">${i + 1}</span>`;
+    row.appendChild(dragBtn);
     row.appendChild(input);
     row.appendChild(delBtn);
     list.appendChild(row);
   }
+}
+
+function startPlayerDrag(e, idx) {
+  draggedPlayerIndex = idx;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', String(idx));
+}
+
+function clearPlayerDragState() {
+  draggedPlayerIndex = null;
+  pointerDropPlayerIndex = null;
+  document.querySelectorAll('.player-name-row').forEach(row => row.classList.remove('dragging', 'drop-target'));
+}
+
+function reorderPlayerNames(fromIdx, targetIdx) {
+  if (!Number.isInteger(fromIdx) || fromIdx === targetIdx) {
+    clearPlayerDragState();
+    return;
+  }
+  const names = [...ST.playerNames];
+  while (names.length < ST.playerCount) names.push('');
+  const [moved] = names.splice(fromIdx, 1);
+  names.splice(targetIdx, 0, moved);
+  ST.playerNames = names.slice(0, ST.playerCount);
+  savePlayerNames();
+  clearPlayerDragState();
+  renderPlayerNames();
+}
+
+function dropPlayer(e, targetIdx) {
+  e.preventDefault();
+  reorderPlayerNames(draggedPlayerIndex ?? Number(e.dataTransfer.getData('text/plain')), targetIdx);
+}
+
+function startPlayerPointerDrag(e, idx) {
+  if (e.pointerType === 'mouse') return;
+  e.preventDefault();
+  draggedPlayerIndex = idx;
+  pointerDropPlayerIndex = idx;
+  e.currentTarget.setPointerCapture(e.pointerId);
+  document.querySelector(`[data-index="${idx}"]`)?.classList.add('dragging');
+  e.currentTarget.onpointermove = movePlayerPointerDrag;
+  e.currentTarget.onpointerup = endPlayerPointerDrag;
+  e.currentTarget.onpointercancel = endPlayerPointerDrag;
+}
+
+function movePlayerPointerDrag(e) {
+  const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.player-name-row');
+  if (!target) return;
+  const targetIdx = Number(target.dataset.index);
+  if (!Number.isInteger(targetIdx)) return;
+  pointerDropPlayerIndex = targetIdx;
+  document.querySelectorAll('.player-name-row').forEach(row =>
+    row.classList.toggle('drop-target', Number(row.dataset.index) === targetIdx)
+  );
+}
+
+function endPlayerPointerDrag(e) {
+  e.currentTarget.releasePointerCapture?.(e.pointerId);
+  e.currentTarget.onpointermove = null;
+  e.currentTarget.onpointerup = null;
+  e.currentTarget.onpointercancel = null;
+  reorderPlayerNames(draggedPlayerIndex, pointerDropPlayerIndex);
 }
 
 function adjustPlayers(d) {
@@ -764,7 +844,6 @@ function revealRole() {
   const idx = ST.currentPlayerIndex;
   const p = ST.players[idx];
   const pct = playerPct();
-  const prevPct = (ST.currentPlayerIndex / ST.playerCount) * 100;
   let html = `<div class="player-number">${p.name}</div>`;
   if (p.role === 'civilian') {
     html += `<div class="role-icon civilian">🟢</div><div class="role-badge civilian">Civile</div><div class="role-word">${ST.secretWord}</div><p class="role-sub">Questa è la tua parola. Difendila senza rivelarla!</p>`;
@@ -783,7 +862,7 @@ function revealRole() {
   void card.offsetWidth;
   card.style.animation = '';
   showScreen('reveal');
-  setPB('reveal-pb', pct, prevPct);
+  setPB('reveal-pb', pct);
 }
 
 function nextPlayer() {

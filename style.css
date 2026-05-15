@@ -339,7 +339,18 @@ body.has-bottom-nav {
 .player-name-row {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.player-name-row.dragging {
+  opacity: 0.55;
+  background: var(--accent-soft);
+}
+
+.player-name-row.drop-target {
+  background: var(--accent-soft-strong);
 }
 
 .player-index {
@@ -348,6 +359,29 @@ body.has-bottom-nav {
   font-weight: 600;
   min-width: 18px;
   text-align: right;
+}
+
+.name-drag-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text3);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+  padding: 0;
+  font-family: inherit;
+  touch-action: none;
+}
+
+.name-drag-btn:active {
+  cursor: grabbing;
 }
 
 .name-input {
