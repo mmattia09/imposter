@@ -91,58 +91,14 @@
       </div>
       <div class="sa-row">
         <button class="sa-btn" id="btn-export-all">⬆ Esporta tutti</button>
-        <button class="sa-btn" id="btn-ai-packet">✨ Crea con AI</button>
         <label class="sa-btn" style="cursor: pointer;">
           ⬇ Importa
           <input type="file" id="file-import" accept=".json" style="display: none;">
         </label>
       </div>
-      <div class="ai-pack-panel" id="ai-pack-panel">
-        <div class="card-title">Crea pacchetto con AI</div>
-        <div class="ai-form-grid">
-          <label class="ai-field">
-            <span>Quante parole</span>
-            <input type="number" id="ai-count" min="5" max="200" value="50">
-          </label>
-          <label class="ai-field">
-            <span>Tema del pacchetto</span>
-            <input type="text" id="ai-theme" placeholder="es. cinema anni '90">
-          </label>
-          <label class="ai-field">
-            <span>Lingua</span>
-            <input type="text" id="ai-language" value="italiano">
-          </label>
-          <label class="ai-field">
-            <span>Indizi per parola</span>
-            <input type="number" id="ai-hints" min="0" max="12" value="4">
-          </label>
-          <label class="ai-field">
-            <span>Difficoltà indizi</span>
-            <select id="ai-difficulty">
-              <option value="vicini">Vicini alla parola</option>
-              <option value="medi" selected>Medi</option>
-              <option value="lontani">Lontani dalla parola</option>
-              <option value="molto lontani">Molto lontani</option>
-            </select>
-          </label>
-          <label class="ai-check">
-            <input type="checkbox" id="ai-multiword" checked>
-            <span>Gli indizi possono essere più di una parola</span>
-          </label>
-        </div>
-        <label class="ai-field">
-          <span>Se ti serve qualcos'altro</span>
-          <textarea id="ai-extra" rows="3" placeholder="Vincoli, pubblico, parole da evitare, tono..."></textarea>
-        </label>
-        <button class="btn btn-primary" id="btn-ai-copy">Copia prompt</button>
-        <div class="ai-import" id="ai-import">
-          <div class="small-info" id="ai-copy-status">Prompt copiato. Incolla qui sotto la risposta dell'AI.</div>
-          <textarea class="packet-textarea" id="ai-response" spellcheck="false" placeholder="Incolla qui la lista generata dall'AI"></textarea>
-          <button class="btn btn-secondary" id="btn-ai-create">Crea pacchetto dalla risposta</button>
-        </div>
-      </div>
       <div id="packet-editors"></div>
       <button class="add-packet-btn" id="btn-add-packet">+ Aggiungi pacchetto</button>
+      <button class="add-packet-btn ai-open-btn" id="btn-ai-packet">✨ Crea pacchetto con AI</button>
     </div>
 
     <!-- COVER -->
@@ -217,6 +173,56 @@
   <div class="bottom-nav" id="bottom-nav">
     <div class="bottom-nav-inner">
       <div class="btn-group" id="nav-buttons"></div>
+    </div>
+  </div>
+
+  <div class="ai-modal" id="ai-pack-modal">
+    <div class="ai-pack-panel" id="ai-pack-panel">
+      <button class="ai-close" id="btn-ai-close" aria-label="Chiudi">×</button>
+      <div class="ai-setup" id="ai-setup">
+        <div class="card-title">Crea pacchetto con AI</div>
+        <div class="ai-form-grid">
+          <label class="ai-field">
+            <span>Quante parole</span>
+            <input type="number" id="ai-count" min="5" max="200" value="50">
+          </label>
+          <label class="ai-field">
+            <span>Tema del pacchetto</span>
+            <input type="text" id="ai-theme" placeholder="es. cinema anni '90">
+          </label>
+          <label class="ai-field">
+            <span>Lingua</span>
+            <input type="text" id="ai-language" value="italiano">
+          </label>
+          <label class="ai-field">
+            <span>Indizi per parola</span>
+            <input type="number" id="ai-hints" min="0" max="12" value="4">
+          </label>
+          <label class="ai-field">
+            <span>Difficoltà indizi</span>
+            <select id="ai-difficulty">
+              <option value="vicini">Vicini alla parola</option>
+              <option value="medi" selected>Medi</option>
+              <option value="lontani">Lontani dalla parola</option>
+              <option value="molto lontani">Molto lontani</option>
+            </select>
+          </label>
+          <label class="ai-check">
+            <input type="checkbox" id="ai-multiword" checked>
+            <span>Gli indizi possono essere più di una parola</span>
+          </label>
+        </div>
+        <label class="ai-field ai-extra-field">
+          <span>Se ti serve qualcos'altro</span>
+          <textarea id="ai-extra" rows="3" placeholder="Vincoli, pubblico, parole da evitare, tono..."></textarea>
+        </label>
+        <button class="btn btn-primary" id="btn-ai-copy">Copia prompt</button>
+      </div>
+      <div class="ai-import" id="ai-import">
+        <div class="small-info" id="ai-copy-status">Prompt copiato. Incolla qui sotto la risposta dell'AI.</div>
+        <textarea class="packet-textarea" id="ai-response" spellcheck="false" placeholder="Incolla qui la lista generata dall'AI"></textarea>
+        <button class="btn btn-secondary" id="btn-ai-create">Crea pacchetto dalla risposta</button>
+      </div>
     </div>
   </div>
 

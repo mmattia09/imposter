@@ -295,8 +295,15 @@ function goSettings() {
   showScreen('settings');
 }
 
-function toggleAIPacketPanel() {
-  document.getElementById('ai-pack-panel').classList.toggle('open');
+function openAIPacketModal() {
+  document.getElementById('ai-pack-modal').classList.add('open');
+  document.getElementById('ai-setup').classList.remove('hidden');
+  document.getElementById('ai-import').classList.remove('open');
+  setTimeout(() => document.getElementById('ai-theme').focus(), 60);
+}
+
+function closeAIPacketModal() {
+  document.getElementById('ai-pack-modal').classList.remove('open');
 }
 
 function buildPacketEditors() {
@@ -520,10 +527,12 @@ function copyText(text) {
 function copyAIPrompt() {
   const prompt = buildAIPrompt(getAISettings());
   copyText(prompt).then(() => {
+    document.getElementById('ai-setup').classList.add('hidden');
     document.getElementById('ai-import').classList.add('open');
     document.getElementById('ai-copy-status').textContent = "Prompt copiato. Incolla qui sotto la risposta dell'AI.";
     document.getElementById('ai-response').focus();
   }).catch(() => {
+    document.getElementById('ai-setup').classList.add('hidden');
     document.getElementById('ai-import').classList.add('open');
     document.getElementById('ai-copy-status').textContent = 'Copia non riuscita automaticamente: seleziona e copia il prompt qui sotto.';
     document.getElementById('ai-response').value = prompt;
@@ -608,6 +617,7 @@ function createPacketFromAIResponse() {
   savePackets();
   buildPacketEditors();
   renderHomePills();
+  closeAIPacketModal();
   setTimeout(() => {
     togglePE(id);
     document.getElementById('pni-' + id).focus();
@@ -900,7 +910,11 @@ document.getElementById('btn-settings-back').onclick = () => {
   renderHomePills();
 };
 document.getElementById('btn-export-all').onclick = exportAllPackets;
-document.getElementById('btn-ai-packet').onclick = toggleAIPacketPanel;
+document.getElementById('btn-ai-packet').onclick = openAIPacketModal;
+document.getElementById('btn-ai-close').onclick = closeAIPacketModal;
+document.getElementById('ai-pack-modal').onclick = e => {
+  if (e.target.id === 'ai-pack-modal') closeAIPacketModal();
+};
 document.getElementById('btn-ai-copy').onclick = copyAIPrompt;
 document.getElementById('btn-ai-create').onclick = createPacketFromAIResponse;
 document.getElementById('file-import').onchange = importPackets;
@@ -929,6 +943,12 @@ window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', e
   if (!localStorage.getItem('imp_theme')) {
     document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
     updateThemeBtn();
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('ai-pack-modal')?.classList.contains('open')) {
+    closeAIPacketModal();
   }
 });
 
