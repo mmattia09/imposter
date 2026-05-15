@@ -1,5 +1,5 @@
-const CACHE = 'impostore-v1';
-const CORE = ['./index.html', './style.css', './script.js'];
+const CACHE = 'impostore-v2';
+const CORE = ['./index.html', './style.css', './script.js', './data/manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
@@ -8,7 +8,6 @@ self.addEventListener('install', e => {
     // Cache all packet files listed in manifest
     try {
       const manifest = await fetch('./data/manifest.json').then(r => r.json());
-      await cache.add('./data/manifest.json');
       await cache.addAll(manifest.map(name => `./data/${name}.json`));
     } catch (_) {}
     self.skipWaiting();

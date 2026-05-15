@@ -25,15 +25,41 @@ const EMOJIS = [
 
 let packets = [];
 
+const DEFAULT_PACKET_FILES = [
+  'packet-easy',
+  'packet-medium',
+  'packet-hard',
+  'packet-brands',
+  'packet-boardgames',
+  'packet-slang',
+  'packet-boomer',
+  'packet-spicy',
+  'packet-minecraft',
+  'packet-videogames',
+  'packet-memes',
+  'packet-instruments'
+];
+
+function normalizePacket(p) {
+  return { ...p, lines: Array.isArray(p.lines) ? [...p.lines] : [] };
+}
+
 function loadPackets(defaults) {
   const stored = localStorage.getItem('imp_packs_v3');
   if (stored) {
     try {
-      packets = JSON.parse(stored);
-      return;
+      const saved = JSON.parse(stored);
+      if (Array.isArray(saved) && saved.some(p => Array.isArray(p.lines) && p.lines.length > 0)) {
+        const byId = new Map(defaults.map(p => [p.id, normalizePacket(p)]));
+        saved
+          .filter(p => p && p.id && p.label && Array.isArray(p.lines))
+          .forEach(p => byId.set(p.id, normalizePacket(p)));
+        packets = [...byId.values()];
+        return;
+      }
     } catch (e) {}
   }
-  packets = defaults.map(p => ({ ...p, lines: [...p.lines] }));
+  packets = defaults.map(normalizePacket);
 }
 
 function savePackets() {
@@ -698,10 +724,23 @@ async function init() {
     try { ST.playerNames = JSON.parse(savedNames); } catch(e) {}
   }
 
-  const manifest = await fetch('data/manifest.json').then(r => r.json());
-  const fetched = await Promise.all(
-    manifest.map(name => fetch('data/' + name + '.json').then(r => r.json()))
-  );
+  let manifest = DEFAULT_PACKET_FILES;
+  try {
+    const res = await fetch('data/manifest.json');
+    if (res.ok) manifest = await res.json();
+  } catch (e) {}
+
+  const fetched = (await Promise.all(
+    manifest.map(async name => {
+      try {
+        const res = await fetch('data/' + name + '.json');
+        return res.ok ? await res.json() : null;
+      } catch (e) {
+        return null;
+      }
+    })
+  )).filter(Boolean);
+
   const defaults = [
     ...fetched,
     { id: 'custom', label: 'Custom', emoji: '🎲', colorIdx: 7, lines: [] }
