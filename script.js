@@ -48,8 +48,6 @@ function getColor(p) {
   return COLORS[p.colorIdx % COLORS.length];
 }
 
-const sessionScore = { civilians: 0, impostors: 0, mrwhite: 0 };
-
 const ST = {
   playerCount: 5,
   playerNames: [],
@@ -589,10 +587,6 @@ function roleLabel(role) {
 }
 
 function showResult(outcome) {
-  if (outcome === 'civilians') sessionScore.civilians++;
-  else if (outcome === 'impostors') sessionScore.impostors++;
-  else sessionScore.mrwhite++;
-
   let emoji, title, sub;
   if (outcome === 'civilians') {
     emoji = '🎉'; title = 'I civili vincono!'; sub = 'Avete smascherato tutti gli impostori!';
@@ -616,19 +610,6 @@ function showResult(outcome) {
     </div>`
   ).join('');
 
-  const total = sessionScore.civilians + sessionScore.impostors + sessionScore.mrwhite;
-  const mwScore = sessionScore.mrwhite > 0
-    ? `<span class="score-pill mrw">⚪ Mr.White&nbsp;${sessionScore.mrwhite}</span>` : '';
-  const scoreSection = `<div class="session-score-section">
-    <div class="session-score-title">Sessione · ${total} round</div>
-    <div class="session-score">
-      <span class="score-pill civ">🟢 Civili&nbsp;${sessionScore.civilians}</span>
-      <span class="score-pill imp">🔴 Impostori&nbsp;${sessionScore.impostors}</span>
-      ${mwScore}
-    </div>
-    <button class="reset-session-btn" id="btn-reset-session">azzera sessione</button>
-  </div>`;
-
   document.getElementById('result-card').innerHTML = `
     <div class="result-emoji">${emoji}</div>
     <div class="result-title">${title}</div>
@@ -638,26 +619,9 @@ function showResult(outcome) {
     <div class="game-log-section">
       <div class="game-log-title">Chi era chi</div>
       <div class="game-log">${logRows}</div>
-    </div>
-    ${scoreSection}`;
-
-  document.getElementById('btn-reset-session').onclick = resetSession;
+    </div>`;
 
   showScreen('result');
-}
-
-function resetSession() {
-  sessionScore.civilians = sessionScore.impostors = sessionScore.mrwhite = 0;
-  const section = document.querySelector('.session-score-section');
-  if (!section) return;
-  section.innerHTML = `
-    <div class="session-score-title">Sessione · 0 round</div>
-    <div class="session-score">
-      <span class="score-pill civ">🟢 Civili&nbsp;0</span>
-      <span class="score-pill imp">🔴 Impostori&nbsp;0</span>
-    </div>
-    <button class="reset-session-btn" id="btn-reset-session">azzera sessione</button>`;
-  document.getElementById('btn-reset-session').onclick = resetSession;
 }
 
 function goHome() {
