@@ -74,6 +74,10 @@ function getColor(p) {
   return COLORS[p.colorIdx % COLORS.length];
 }
 
+function getPacketTextColor(c) {
+  return isDarkMode() ? c.hex : c.dark;
+}
+
 const ST = {
   playerCount: 5,
   playerNames: [],
@@ -271,7 +275,7 @@ function renderHomePills() {
     const btn = document.createElement('button');
     btn.className = 'packet-pill';
     if (sel) {
-      btn.style.cssText = `border-color:${c.hex};background:${c.hex}1a;color:${c.dark};`;
+      btn.style.cssText = `border-color:${c.hex};background:${c.hex}26;color:${getPacketTextColor(c)};`;
     }
     btn.innerHTML = `<span class="dot" style="background:${sel ? c.hex : 'var(--text3)'};"></span>${p.emoji} ${p.label}`;
     btn.onclick = () => toggleHomePack(p.id);
@@ -936,6 +940,7 @@ function toggleTheme() {
   document.documentElement.dataset.theme = next;
   localStorage.setItem('imp_theme', next);
   updateThemeBtn();
+  renderHomePills();
 }
 
 // Listen for system theme changes (only if user hasn't manually chosen)
@@ -943,6 +948,7 @@ window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', e
   if (!localStorage.getItem('imp_theme')) {
     document.documentElement.dataset.theme = e.matches ? 'dark' : 'light';
     updateThemeBtn();
+    renderHomePills();
   }
 });
 

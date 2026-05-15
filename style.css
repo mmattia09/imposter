@@ -16,10 +16,19 @@
   --text3: #aeaeb2;
   --accent: #0071e3;
   --accent-h: #0077ed;
+  --accent-contrast: #fff;
   --danger: #ff3b30;
   --success: #34c759;
   --warning: #ff9f0a;
   --mrw: #636366;
+  --accent-soft: rgba(0, 113, 227, 0.08);
+  --accent-soft-strong: rgba(0, 113, 227, 0.12);
+  --danger-soft: rgba(255, 59, 48, 0.08);
+  --danger-soft-strong: rgba(255, 59, 48, 0.12);
+  --success-soft: rgba(52, 199, 89, 0.1);
+  --warning-soft: rgba(255, 159, 10, 0.08);
+  --warning-border: rgba(255, 159, 10, 0.25);
+  --mrw-soft: rgba(99, 99, 102, 0.1);
 
   --radius: 16px;
   --radius-sm: 10px;
@@ -380,7 +389,7 @@ body.has-bottom-nav {
 
 .name-delete-btn:hover {
   color: var(--danger);
-  background: rgba(255, 59, 48, 0.08);
+  background: var(--danger-soft);
 }
 
 /* Buttons */
@@ -398,7 +407,7 @@ body.has-bottom-nav {
 
 .btn-primary {
   background: var(--accent);
-  color: white;
+  color: var(--accent-contrast);
 }
 
 .btn-primary:hover {
@@ -585,15 +594,15 @@ body.has-bottom-nav {
 }
 
 .role-icon.civilian {
-  background: rgba(52, 199, 89, 0.1);
+  background: var(--success-soft);
 }
 
 .role-icon.impostor {
-  background: rgba(255, 59, 48, 0.1);
+  background: var(--danger-soft-strong);
 }
 
 .role-icon.mrwhite {
-  background: rgba(99, 99, 102, 0.1);
+  background: var(--mrw-soft);
 }
 
 .role-badge {
@@ -630,8 +639,8 @@ body.has-bottom-nav {
 }
 
 .hint-solo {
-  background: rgba(255, 159, 10, 0.07);
-  border: 1px solid rgba(255, 159, 10, 0.25);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-border);
   border-radius: var(--radius-sm);
   padding: var(--spacing-lg);
   margin-top: var(--spacing-lg);
@@ -732,12 +741,12 @@ body.has-bottom-nav {
 
 .player-vote-item:hover {
   border-color: var(--accent);
-  background: rgba(0, 113, 227, 0.04);
+  background: var(--accent-soft);
 }
 
 .player-vote-item.selected {
   border-color: var(--danger);
-  background: rgba(255, 59, 48, 0.06);
+  background: var(--danger-soft);
 }
 
 .player-vote-name {
@@ -1018,9 +1027,9 @@ body.has-bottom-nav {
 .pdel {
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: 8px;
-  background: rgba(255, 59, 48, 0.08);
+  background: var(--danger-soft);
   color: var(--danger);
-  border: 1px solid rgba(255, 59, 48, 0.2);
+  border: 1px solid var(--danger-soft-strong);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -1029,7 +1038,7 @@ body.has-bottom-nav {
 }
 
 .pdel:hover {
-  background: rgba(255, 59, 48, 0.12);
+  background: var(--danger-soft-strong);
 }
 
 .add-packet-btn {
@@ -1283,7 +1292,7 @@ body.has-bottom-nav {
 
 .ep-opt.sel {
   border-color: var(--accent);
-  background: rgba(0, 113, 227, 0.12);
+  background: var(--accent-soft-strong);
   transform: scale(1.08);
 }
 
@@ -1397,12 +1406,21 @@ body.has-bottom-nav {
   --text: #f2f2f7;
   --text2: #aeaeb2;
   --text3: #636366;
-  --accent: #0a84ff;
-  --accent-h: #409cff;
-  --danger: #ff453a;
-  --success: #30d158;
-  --warning: #ffd60a;
-  --mrw: #98989d;
+  --accent: #5ac8fa;
+  --accent-h: #7dd8ff;
+  --accent-contrast: #06121a;
+  --danger: #ff6961;
+  --success: #5dde7a;
+  --warning: #ffd166;
+  --mrw: #c7c7cc;
+  --accent-soft: rgba(90, 200, 250, 0.14);
+  --accent-soft-strong: rgba(90, 200, 250, 0.2);
+  --danger-soft: rgba(255, 105, 97, 0.14);
+  --danger-soft-strong: rgba(255, 105, 97, 0.22);
+  --success-soft: rgba(93, 222, 122, 0.14);
+  --warning-soft: rgba(255, 209, 102, 0.12);
+  --warning-border: rgba(255, 209, 102, 0.28);
+  --mrw-soft: rgba(199, 199, 204, 0.12);
   --shadow: 0 2px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.55), 0 4px 16px rgba(0, 0, 0, 0.3);
   --toggle-off: #38383a;
