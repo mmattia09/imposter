@@ -1241,12 +1241,6 @@ body.has-bottom-nav {
   margin-bottom: var(--spacing-lg);
 }
 
-/* Game log */
-.game-log-section {
-  text-align: left;
-}
-
-.game-log-title,
 .session-score-title {
   font-size: 11px;
   font-weight: 700;
@@ -1254,50 +1248,6 @@ body.has-bottom-nav {
   text-transform: uppercase;
   letter-spacing: 0.7px;
   margin-bottom: var(--spacing-sm);
-}
-
-.game-log {
-  display: flex;
-  flex-direction: column;
-}
-
-.log-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-
-.log-row:last-child {
-  border-bottom: none;
-}
-
-.log-name {
-  font-weight: 500;
-}
-
-.log-role-badge {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 10px;
-}
-
-.log-role-badge.civilian {
-  background: rgba(52, 199, 89, 0.12);
-  color: var(--success);
-}
-
-.log-role-badge.impostor {
-  background: rgba(255, 59, 48, 0.12);
-  color: var(--danger);
-}
-
-.log-role-badge.mrwhite {
-  background: rgba(99, 99, 102, 0.12);
-  color: var(--mrw);
 }
 
 /* Session score */
