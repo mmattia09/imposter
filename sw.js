@@ -1,4 +1,4 @@
-const CACHE = 'impostore-v2';
+const CACHE = 'impostore-v3';
 const CORE = ['./index.html', './style.css', './script.js', './data/manifest.json'];
 
 self.addEventListener('install', e => {
@@ -26,6 +26,14 @@ self.addEventListener('fetch', e => {
   // Only handle GET requests for same-origin resources
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(response => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(e.request, copy)).catch(() => {});
+        }
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });

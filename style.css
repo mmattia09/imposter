@@ -690,14 +690,23 @@ body.has-bottom-nav {
 
 /* Vote Screen */
 #screen-vote.active {
-  min-height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
 }
 
 #screen-vote .nav-row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   justify-content: center;
+}
+
+#screen-vote .card {
+  margin-bottom: 0;
 }
 
 .player-list {
@@ -1245,6 +1254,7 @@ body.has-bottom-nav {
 /* Game screens fill available height so cards appear centered */
 #screen-cover.active,
 #screen-reveal.active,
+#screen-vote.active,
 #screen-civilian-elim.active,
 #screen-mrwhite-guess.active,
 #screen-result.active,
