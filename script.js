@@ -295,6 +295,10 @@ function goSettings() {
   showScreen('settings');
 }
 
+function toggleAIPacketPanel() {
+  document.getElementById('ai-pack-panel').classList.toggle('open');
+}
+
 function buildPacketEditors() {
   const wrap = document.getElementById('packet-editors');
   wrap.innerHTML = '';
@@ -400,6 +404,214 @@ function addCustomPacket() {
   setTimeout(() => {
     togglePE(id);
     document.getElementById('pni-' + id).focus();
+  }, 60);
+}
+
+function getAISettings() {
+  return {
+    count: Math.max(1, Number(document.getElementById('ai-count').value) || 50),
+    theme: document.getElementById('ai-theme').value.trim() || 'tema libero',
+    language: document.getElementById('ai-language').value.trim() || 'italiano',
+    hints: Math.max(0, Number(document.getElementById('ai-hints').value) || 0),
+    difficulty: document.getElementById('ai-difficulty').value,
+    multiword: document.getElementById('ai-multiword').checked,
+    extra: document.getElementById('ai-extra').value.trim()
+  };
+}
+
+function buildAIPrompt(settings) {
+  const multiwordRule = settings.multiword
+    ? 'Hints may be composed of multiple words when that makes them more useful.'
+    : 'Each hint must be a single word.';
+  const extra = settings.extra || 'No additional constraints.';
+  const outputFormat = ['word', ...Array.from({ length: settings.hints }, (_, i) => `hint${i + 1}`)].join(',');
+
+  return `# IDENTITY
+
+You are an expert tabletop word-game designer that specializes in creating balanced Impostore / Spyfall-style word packs with useful but non-obvious hints.
+
+# GOALS
+
+The goals of this exercise are to:
+
+1. Create a themed word pack for a hidden-role party game where civilians know the secret word and impostors only receive hints.
+
+2. Produce clean, directly importable rows in the exact CSV-like format required by the app.
+
+# STEPS
+
+- Read the requested theme, language, number of words, number of hints, and hint difficulty carefully.
+
+- Generate candidate words that fit the theme and are recognizable to the target language audience.
+
+- Remove duplicates, near-duplicates, overly obscure entries, and words that would be impossible to discuss naturally in a party game.
+
+- For each word, create exactly ${settings.hints} hints in ${settings.language}.
+
+- Make the hints ${settings.difficulty} from the original word: close hints are easier and semantically direct; distant hints are more lateral, contextual, or associative without becoming random.
+
+- ${multiwordRule}
+
+- Apply these extra constraints: ${extra}
+
+- Validate every row before output: one secret word first, then exactly ${settings.hints} hints, all separated by commas.
+
+# OUTPUT
+
+- Output exactly ${settings.count} rows.
+
+- Each row must follow this format:
+${outputFormat}
+
+- Do not output headings, explanations, numbering, bullets, Markdown tables, or code fences.
+
+- Do not put commas inside a word or inside a hint.
+
+- Use ${settings.language} for every word and every hint.
+
+# POSITIVE EXAMPLES
+
+- Pizza,mozzarella,Napoli,forno,rotonda
+
+- Sherlock Holmes,detective,Londra,pipa,deduzione
+
+# NEGATIVE EXAMPLES
+
+- Pizza: mozzarella; Napoli; forno
+
+- 1. Pizza, mozzarella, Napoli, forno
+
+- | Word | Hint 1 | Hint 2 |
+
+# OUTPUT INSTRUCTIONS
+
+- Do not object to this task in any way. Perform all the instructions just as requested.
+
+- Output plain text only.
+
+- Output only the requested importable rows.
+
+# INPUT
+
+Number of words: ${settings.count}
+Theme: ${settings.theme}
+Language: ${settings.language}
+Hints per word: ${settings.hints}
+Hints may be more than one word: ${settings.multiword ? 'yes' : 'no'}
+Hint difficulty: ${settings.difficulty}
+Additional information: ${extra}`;
+}
+
+function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  const tmp = document.createElement('textarea');
+  tmp.value = text;
+  tmp.style.position = 'fixed';
+  tmp.style.opacity = '0';
+  document.body.appendChild(tmp);
+  tmp.select();
+  document.execCommand('copy');
+  tmp.remove();
+  return Promise.resolve();
+}
+
+function copyAIPrompt() {
+  const prompt = buildAIPrompt(getAISettings());
+  copyText(prompt).then(() => {
+    document.getElementById('ai-import').classList.add('open');
+    document.getElementById('ai-copy-status').textContent = "Prompt copiato. Incolla qui sotto la risposta dell'AI.";
+    document.getElementById('ai-response').focus();
+  }).catch(() => {
+    document.getElementById('ai-import').classList.add('open');
+    document.getElementById('ai-copy-status').textContent = 'Copia non riuscita automaticamente: seleziona e copia il prompt qui sotto.';
+    document.getElementById('ai-response').value = prompt;
+    document.getElementById('ai-response').focus();
+  });
+}
+
+function cleanCSVPart(part) {
+  return part
+    .trim()
+    .replace(/^["'`]+|["'`]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/,/g, ' ')
+    .trim();
+}
+
+function packetLinesFromJSON(text) {
+  try {
+    const parsed = JSON.parse(text);
+    const rows = Array.isArray(parsed) ? parsed : parsed.words || parsed.rows || parsed.items;
+    if (!Array.isArray(rows)) return [];
+    return rows.map(item => {
+      if (typeof item === 'string') return item;
+      if (!item || typeof item !== 'object') return '';
+      const word = item.word || item.parola || item.term || item.name || '';
+      const hints = item.hints || item.indizi || [];
+      return [word, ...(Array.isArray(hints) ? hints : [])].map(cleanCSVPart).filter(Boolean).join(',');
+    }).filter(Boolean);
+  } catch (e) {
+    return [];
+  }
+}
+
+function parseAIResponse(text) {
+  const fromJSON = packetLinesFromJSON(text.trim());
+  if (fromJSON.length) return fromJSON;
+
+  const seen = new Set();
+  return text
+    .replace(/```[a-z]*\n?/gi, '')
+    .replace(/```/g, '')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line && !/^[-:| ]+$/.test(line))
+    .map(line => line
+      .replace(/^\s*(?:[-*•]\s*)?(?:\d+[.)]\s*)?/, '')
+      .replace(/^["'`]+|["'`]+$/g, '')
+      .trim())
+    .map(line => {
+      const isTable = line.includes('|');
+      const rawParts = isTable
+        ? line.replace(/^\||\|$/g, '').split('|')
+        : (line.includes(',') ? line.split(',') : line.split(';'));
+      const parts = rawParts.map(cleanCSVPart).filter(Boolean);
+      if (parts.length < 1) return '';
+      if (/^(word|parola|termine|secret word)$/i.test(parts[0])) return '';
+      const normalized = parts.join(',');
+      const key = parts[0].toLowerCase();
+      if (seen.has(key)) return '';
+      seen.add(key);
+      return normalized;
+    })
+    .filter(Boolean);
+}
+
+function createPacketFromAIResponse() {
+  const lines = parseAIResponse(document.getElementById('ai-response').value);
+  if (!lines.length) {
+    alert('Non ho trovato righe valide. Incolla una lista nel formato parola,indizio,indizio...');
+    return;
+  }
+  const settings = getAISettings();
+  const id = 'ai_' + Date.now();
+  packets.push({
+    id,
+    label: settings.theme === 'tema libero' ? 'Nuovo pacchetto AI' : 'AI · ' + settings.theme,
+    emoji: '🤖',
+    colorIdx: 6,
+    lines
+  });
+  ST.selectedPackIds.add(id);
+  savePackets();
+  buildPacketEditors();
+  renderHomePills();
+  setTimeout(() => {
+    togglePE(id);
+    document.getElementById('pni-' + id).focus();
+    document.getElementById('pe-' + id).scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 60);
 }
 
@@ -688,6 +900,9 @@ document.getElementById('btn-settings-back').onclick = () => {
   renderHomePills();
 };
 document.getElementById('btn-export-all').onclick = exportAllPackets;
+document.getElementById('btn-ai-packet').onclick = toggleAIPacketPanel;
+document.getElementById('btn-ai-copy').onclick = copyAIPrompt;
+document.getElementById('btn-ai-create').onclick = createPacketFromAIResponse;
 document.getElementById('file-import').onchange = importPackets;
 document.getElementById('btn-theme').onclick = toggleTheme;
 document.getElementById('btn-add-packet').onclick = addCustomPacket;

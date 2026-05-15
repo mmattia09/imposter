@@ -1,4 +1,4 @@
-const CACHE = 'impostore-v3';
+const CACHE = 'impostore-v4';
 const CORE = ['./index.html', './style.css', './script.js', './data/manifest.json'];
 
 self.addEventListener('install', e => {
