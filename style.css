@@ -478,7 +478,8 @@ body.has-bottom-nav {
   height: 100%;
   background: var(--accent);
   border-radius: 3px;
-  transition: width 0.35s ease;
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: width;
 }
 
 /* Cover Screen */
@@ -1406,15 +1407,15 @@ body.has-bottom-nav {
   --text: #f2f2f7;
   --text2: #aeaeb2;
   --text3: #636366;
-  --accent: #5ac8fa;
-  --accent-h: #7dd8ff;
-  --accent-contrast: #06121a;
+  --accent: #248ee4;
+  --accent-h: #3ba1f4;
+  --accent-contrast: #ffffff;
   --danger: #ff6961;
   --success: #5dde7a;
   --warning: #ffd166;
   --mrw: #c7c7cc;
-  --accent-soft: rgba(90, 200, 250, 0.14);
-  --accent-soft-strong: rgba(90, 200, 250, 0.2);
+  --accent-soft: rgba(36, 142, 228, 0.16);
+  --accent-soft-strong: rgba(36, 142, 228, 0.24);
   --danger-soft: rgba(255, 105, 97, 0.14);
   --danger-soft-strong: rgba(255, 105, 97, 0.22);
   --success-soft: rgba(93, 222, 122, 0.14);

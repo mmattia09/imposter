@@ -730,9 +730,21 @@ function newRound() {
   showCover();
 }
 
-function setPB(id, pct) {
+function setPB(id, pct, fromPct = null) {
   const el = document.getElementById(id);
-  if (el) el.style.width = pct + '%';
+  if (!el) return;
+  if (fromPct !== null) {
+    el.getAnimations?.().forEach(animation => animation.cancel());
+    el.style.width = pct + '%';
+    if (el.animate) {
+      el.animate(
+        [{ width: fromPct + '%' }, { width: pct + '%' }],
+        { duration: 450, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+      );
+    }
+    return;
+  }
+  el.style.width = pct + '%';
 }
 
 function playerPct() {
@@ -741,15 +753,18 @@ function playerPct() {
 
 function showCover() {
   const p = ST.players[ST.currentPlayerIndex];
+  const pct = playerPct();
+  const prevPct = (ST.currentPlayerIndex / ST.playerCount) * 100;
   document.getElementById('cover-title').textContent = `Passa il telefono a ${p.name}`;
-  setPB('cover-pb', playerPct());
   showScreen('cover');
+  setPB('cover-pb', pct, prevPct);
 }
 
 function revealRole() {
   const idx = ST.currentPlayerIndex;
   const p = ST.players[idx];
-  setPB('reveal-pb', playerPct());
+  const pct = playerPct();
+  const prevPct = (ST.currentPlayerIndex / ST.playerCount) * 100;
   let html = `<div class="player-number">${p.name}</div>`;
   if (p.role === 'civilian') {
     html += `<div class="role-icon civilian">🟢</div><div class="role-badge civilian">Civile</div><div class="role-word">${ST.secretWord}</div><p class="role-sub">Questa è la tua parola. Difendila senza rivelarla!</p>`;
@@ -768,6 +783,7 @@ function revealRole() {
   void card.offsetWidth;
   card.style.animation = '';
   showScreen('reveal');
+  setPB('reveal-pb', pct, prevPct);
 }
 
 function nextPlayer() {
