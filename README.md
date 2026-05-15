@@ -12,7 +12,6 @@ Gioco da tavolo digitale ispirato a *Spyfall* / *Among Us*. Un giocatore alla vo
 
 ## Funzionalità
 
-- **Log partita** — a fine round mostra chi aveva quale ruolo con badge colorati
 - **Indizi illimitati** — ogni voce può avere quanti indizi vuoi, anche multi-parola (`parola,indizio lungo,altro indizio`)
 - **Tema scuro** — rilevamento automatico dal sistema + toggle manuale ☀️/🌙
 - **Offline-first** — Service Worker che mette in cache tutti gli asset; funziona senza connessione dopo il primo caricamento

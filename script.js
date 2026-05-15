@@ -89,11 +89,13 @@ function updateBottomNav(screenId) {
     nav.appendChild(btn);
     document.getElementById('bottom-nav').classList.add('active');
   } else if (screenId === 'vote') {
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-primary';
-    btn.textContent = 'Conferma eliminazione';
-    btn.id = 'btn-confirm-vote';
-    nav.appendChild(btn);
+    const group = document.createElement('div');
+    group.className = 'btn-group';
+    group.innerHTML = `
+      <button class="btn btn-secondary" id="btn-show-roles-exit">Mostra ruoli ed esci</button>
+      <button class="btn btn-primary" id="btn-confirm-vote">Conferma eliminazione</button>
+    `;
+    nav.appendChild(group);
     document.getElementById('bottom-nav').classList.add('active');
   } else if (screenId === 'civilian-elim') {
     const btn = document.createElement('button');
@@ -120,6 +122,13 @@ function updateBottomNav(screenId) {
     `;
     nav.appendChild(group);
     document.getElementById('bottom-nav').classList.add('active');
+  } else if (screenId === 'role-summary') {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary';
+    btn.textContent = 'Torna al menu';
+    btn.id = 'btn-go-home';
+    nav.appendChild(btn);
+    document.getElementById('bottom-nav').classList.add('active');
   } else {
     document.getElementById('bottom-nav').classList.remove('active');
   }
@@ -134,6 +143,7 @@ function attachBottomNavListeners() {
   const listeners = {
     'btn-reveal': revealRole,
     'btn-next-player': nextPlayer,
+    'btn-show-roles-exit': showRolesAndExit,
     'btn-confirm-vote': confirmVote,
     'btn-continue-civilian': continueAfterCivilian,
     'btn-mrwhite-confirm': checkMrWhiteGuess,
@@ -172,7 +182,7 @@ function renderPlayerNames() {
     delBtn.type = 'button';
     delBtn.textContent = '×';
     delBtn.title = 'Rimuovi nome';
-    delBtn.onclick = () => { ST.playerNames[i] = ''; savePlayerNames(); renderPlayerNames(); };
+    delBtn.onclick = () => removePlayer(i);
     row.innerHTML = `<span class="player-index">${i + 1}</span>`;
     row.appendChild(input);
     row.appendChild(delBtn);
@@ -184,6 +194,19 @@ function adjustPlayers(d) {
   ST.playerCount = Math.max(3, Math.min(12, ST.playerCount + d));
   document.getElementById('player-count').textContent = ST.playerCount;
   clampRoles();
+  renderPlayerNames();
+}
+
+function removePlayer(idx) {
+  if (ST.playerCount <= 3) {
+    ST.playerNames[idx] = '';
+  } else {
+    ST.playerNames.splice(idx, 1);
+    ST.playerCount--;
+  }
+  document.getElementById('player-count').textContent = ST.playerCount;
+  clampRoles();
+  savePlayerNames();
   renderPlayerNames();
 }
 
@@ -497,7 +520,7 @@ function revealRole() {
 
 function nextPlayer() {
   const card = document.getElementById('player-card');
-  card.style.animation = 'slideOutLeft 0.22s ease-in forwards';
+  card.style.animation = 'cardExit 0.2s ease-in forwards';
   setTimeout(() => {
     card.style.animation = '';
     ST.currentPlayerIndex++;
@@ -582,8 +605,14 @@ function checkWin() {
   showVoteScreen();
 }
 
-function roleLabel(role) {
-  return role === 'civilian' ? 'Civile' : role === 'impostor' ? 'Impostore' : 'Mr. White';
+function buildRoleSummaryRows() {
+  const iN = ST.players.filter(p => p.role === 'impostor').map(p => p.name).join(', ');
+  const mwN = ST.players.filter(p => p.role === 'mrwhite').map(p => p.name).join(', ');
+
+  let infoRows = `<div class="info-row"><span>Parola segreta</span><span><strong>${ST.secretWord}</strong></span></div>
+    <div class="info-row"><span>Impostori</span><span class="tag-i">${iN || '—'}</span></div>`;
+  if (mwN) infoRows += `<div class="info-row"><span>Mr. White</span><span class="tag-mw">${mwN}</span></div>`;
+  return infoRows;
 }
 
 function showResult(outcome) {
@@ -596,32 +625,22 @@ function showResult(outcome) {
     emoji = '⚪️'; title = 'Mr. White vince!'; sub = 'Ha indovinato la parola segreta. Genio del bluff!';
   }
 
-  const iN = ST.players.filter(p => p.role === 'impostor').map(p => p.name).join(', ');
-  const mwN = ST.players.filter(p => p.role === 'mrwhite').map(p => p.name).join(', ');
-
-  let infoRows = `<div class="info-row"><span>Parola segreta</span><span><strong>${ST.secretWord}</strong></span></div>
-    <div class="info-row"><span>Impostori</span><span class="tag-i">${iN || '—'}</span></div>`;
-  if (mwN) infoRows += `<div class="info-row"><span>Mr. White</span><span class="tag-mw">${mwN}</span></div>`;
-
-  const logRows = ST.players.map(p =>
-    `<div class="log-row">
-      <span class="log-name">${p.name}</span>
-      <span class="log-role-badge ${p.role}">${roleLabel(p.role)}</span>
-    </div>`
-  ).join('');
-
   document.getElementById('result-card').innerHTML = `
     <div class="result-emoji">${emoji}</div>
     <div class="result-title">${title}</div>
     <div class="result-sub">${sub}</div>
-    <div style="margin-top:var(--spacing-sm);">${infoRows}</div>
-    <div class="divider" style="margin:var(--spacing-lg) 0;"></div>
-    <div class="game-log-section">
-      <div class="game-log-title">Chi era chi</div>
-      <div class="game-log">${logRows}</div>
-    </div>`;
+    <div class="role-summary">${buildRoleSummaryRows()}</div>`;
 
   showScreen('result');
+}
+
+function showRolesAndExit() {
+  document.getElementById('role-summary-card').innerHTML = `
+    <div class="result-emoji">👀</div>
+    <div class="result-title">Ruoli rivelati</div>
+    <div class="result-sub">La partita si chiude qui.</div>
+    <div class="role-summary">${buildRoleSummaryRows()}</div>`;
+  showScreen('role-summary');
 }
 
 function goHome() {
@@ -645,8 +664,6 @@ document.getElementById('btn-settings-back').onclick = () => {
 document.getElementById('btn-export-all').onclick = exportAllPackets;
 document.getElementById('file-import').onchange = importPackets;
 document.getElementById('btn-theme').onclick = toggleTheme;
-document.getElementById('btn-reveal-exit').onclick = () => { if (confirm('Uscire dalla partita?')) goHome(); };
-document.getElementById('btn-vote-exit').onclick = () => { if (confirm('Uscire dalla partita?')) goHome(); };
 document.getElementById('btn-add-packet').onclick = addCustomPacket;
 
 // Theme

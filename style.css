@@ -476,7 +476,7 @@ body.has-bottom-nav {
 .screen#screen-cover {
   display: none;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -492,6 +492,8 @@ body.has-bottom-nav {
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
   width: 100%;
+  margin: auto 0;
+  animation: cardEnter 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .cover-icon {
@@ -515,7 +517,7 @@ body.has-bottom-nav {
 #screen-reveal {
   display: none;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -540,25 +542,25 @@ body.has-bottom-nav {
   text-align: center;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
-  animation: slideUp 0.3s ease;
+  animation: cardEnter 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
   width: 100%;
 }
 
-@keyframes slideUp {
+@keyframes cardEnter {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(18px) scale(0.985);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes slideOutLeft {
+@keyframes cardExit {
   to {
     opacity: 0;
-    transform: translateX(-36px) scale(0.97);
+    transform: translateY(-10px) scale(0.985);
   }
 }
 
@@ -670,7 +672,7 @@ body.has-bottom-nav {
   text-align: center;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
-  animation: slideUp 0.3s ease;
+  animation: cardEnter 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
   width: 100%;
 }
 
@@ -687,6 +689,17 @@ body.has-bottom-nav {
 }
 
 /* Vote Screen */
+#screen-vote.active {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#screen-vote .nav-row {
+  justify-content: center;
+}
+
 .player-list {
   display: flex;
   flex-direction: column;
@@ -743,14 +756,16 @@ body.has-bottom-nav {
 }
 
 /* Result Card */
-.screen#screen-result {
+.screen#screen-result,
+.screen#screen-role-summary {
   display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-.screen#screen-result.active {
+.screen#screen-result.active,
+.screen#screen-role-summary.active {
   display: flex;
 }
 
@@ -761,7 +776,7 @@ body.has-bottom-nav {
   text-align: center;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
-  animation: slideUp 0.4s ease;
+  animation: cardEnter 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
   width: 100%;
 }
 
@@ -811,6 +826,11 @@ body.has-bottom-nav {
 
 .tag-mw {
   color: var(--mrw);
+}
+
+.role-summary {
+  margin-top: var(--spacing-sm);
+  text-align: left;
 }
 
 /* Settings */
@@ -1227,74 +1247,11 @@ body.has-bottom-nav {
 #screen-reveal.active,
 #screen-civilian-elim.active,
 #screen-mrwhite-guess.active,
-#screen-result.active {
+#screen-result.active,
+#screen-role-summary.active {
   flex: 1;
-}
-
-.reveal-nav {
-  display: flex;
-  align-items: center;
-  padding-bottom: var(--spacing-sm);
 }
 
 #packet-editors {
   margin-bottom: var(--spacing-lg);
-}
-
-/* Game log */
-.game-log-section {
-  text-align: left;
-}
-
-.game-log-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  margin-bottom: var(--spacing-sm);
-}
-
-.game-log {
-  display: flex;
-  flex-direction: column;
-}
-
-.log-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-
-.log-row:last-child {
-  border-bottom: none;
-}
-
-.log-name {
-  font-weight: 500;
-}
-
-.log-role-badge {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 10px;
-}
-
-.log-role-badge.civilian {
-  background: rgba(52, 199, 89, 0.12);
-  color: var(--success);
-}
-
-.log-role-badge.impostor {
-  background: rgba(255, 59, 48, 0.12);
-  color: var(--danger);
-}
-
-.log-role-badge.mrwhite {
-  background: rgba(99, 99, 102, 0.12);
-  color: var(--mrw);
 }
