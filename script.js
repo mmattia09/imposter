@@ -584,6 +584,10 @@ function checkWin() {
   showVoteScreen();
 }
 
+function roleLabel(role) {
+  return role === 'civilian' ? 'Civile' : role === 'impostor' ? 'Impostore' : 'Mr. White';
+}
+
 function showResult(outcome) {
   if (outcome === 'civilians') sessionScore.civilians++;
   else if (outcome === 'impostors') sessionScore.impostors++;
@@ -605,6 +609,13 @@ function showResult(outcome) {
     <div class="info-row"><span>Impostori</span><span class="tag-i">${iN || '—'}</span></div>`;
   if (mwN) infoRows += `<div class="info-row"><span>Mr. White</span><span class="tag-mw">${mwN}</span></div>`;
 
+  const logRows = ST.players.map(p =>
+    `<div class="log-row">
+      <span class="log-name">${p.name}</span>
+      <span class="log-role-badge ${p.role}">${roleLabel(p.role)}</span>
+    </div>`
+  ).join('');
+
   const total = sessionScore.civilians + sessionScore.impostors + sessionScore.mrwhite;
   const mwScore = sessionScore.mrwhite > 0
     ? `<span class="score-pill mrw">⚪ Mr.White&nbsp;${sessionScore.mrwhite}</span>` : '';
@@ -623,6 +634,11 @@ function showResult(outcome) {
     <div class="result-title">${title}</div>
     <div class="result-sub">${sub}</div>
     <div style="margin-top:var(--spacing-sm);">${infoRows}</div>
+    <div class="divider" style="margin:var(--spacing-lg) 0;"></div>
+    <div class="game-log-section">
+      <div class="game-log-title">Chi era chi</div>
+      <div class="game-log">${logRows}</div>
+    </div>
     ${scoreSection}`;
 
   document.getElementById('btn-reset-session').onclick = resetSession;
