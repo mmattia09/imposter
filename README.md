@@ -17,7 +17,7 @@ Gioco da tavolo digitale ispirato a *Spyfall* / *Among Us*. Un giocatore alla vo
 - **Indizi illimitati** — ogni voce può avere quanti indizi vuoi, anche multi-parola (`parola,indizio lungo,altro indizio`)
 - **Tema scuro** — rilevamento automatico dal sistema + toggle manuale ☀️/🌙
 - **Offline-first** — Service Worker che mette in cache tutti gli asset; funziona senza connessione dopo il primo caricamento
-- **Nomi salvati e riordinabili** — i nomi persistono tra sessioni, si possono spostare di posizione e rimuovere singolarmente
+- **Nomi salvati e riordinabili** — i nomi persistono tra sessioni, si possono trascinare per cambiare ordine e rimuovere singolarmente
 - **Pacchetti custom** — crea, modifica, esporta e importa pacchetti JSON direttamente dall'app
 - **Pacchetti con AI** — genera un prompt guidato, incolla la risposta dell'AI e trasforma la lista in un nuovo pacchetto modificabile
 

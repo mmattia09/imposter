@@ -341,7 +341,17 @@ body.has-bottom-nav {
   align-items: center;
   gap: var(--spacing-sm);
   border-radius: var(--radius-sm);
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, outline-color 0.15s;
+  outline: 1.5px solid transparent;
+  outline-offset: 2px;
+}
+
+.player-name-row.dragging {
+  opacity: 0.55;
+}
+
+.player-name-row.drag-target {
+  outline-color: var(--accent);
 }
 
 .player-index {
@@ -352,40 +362,27 @@ body.has-bottom-nav {
   text-align: right;
 }
 
-.name-order-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.name-order-btn {
-  width: 26px;
-  height: 20px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface2);
-  color: var(--text2);
-  cursor: pointer;
+.name-drag-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text3);
+  cursor: grab;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1;
+  flex-shrink: 0;
   padding: 0;
   font-family: inherit;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  touch-action: none;
 }
 
-.name-order-btn:hover:not(:disabled) {
-  background: var(--surface3);
-  color: var(--text);
-  border-color: var(--border2);
-}
-
-.name-order-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
+.name-drag-btn:active {
+  cursor: grabbing;
 }
 
 .name-input {

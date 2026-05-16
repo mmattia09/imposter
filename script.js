@@ -24,6 +24,7 @@ const EMOJIS = [
 ];
 
 let packets = [];
+let playerDrag = null;
 
 const DEFAULT_PACKET_FILES = [
   'packet-easy',
@@ -195,14 +196,13 @@ function renderPlayerNames() {
   for (let i = 0; i < ST.playerCount; i++) {
     const row = document.createElement('div');
     row.className = 'player-name-row';
-    const orderControls = document.createElement('div');
-    orderControls.className = 'name-order-controls';
-    orderControls.innerHTML = `
-      <button type="button" class="name-order-btn" title="Sposta su" ${i === 0 ? 'disabled' : ''}>↑</button>
-      <button type="button" class="name-order-btn" title="Sposta giù" ${i === ST.playerCount - 1 ? 'disabled' : ''}>↓</button>
-    `;
-    orderControls.children[0].onclick = () => movePlayer(i, -1);
-    orderControls.children[1].onclick = () => movePlayer(i, 1);
+    row.dataset.index = i;
+    const dragBtn = document.createElement('button');
+    dragBtn.className = 'name-drag-btn';
+    dragBtn.type = 'button';
+    dragBtn.textContent = '☰';
+    dragBtn.title = 'Trascina per riordinare';
+    dragBtn.onpointerdown = e => startPlayerReorder(e, i);
     const input = document.createElement('input');
     input.className = 'name-input';
     input.type = 'text';
@@ -222,17 +222,17 @@ function renderPlayerNames() {
     delBtn.title = 'Rimuovi nome';
     delBtn.onclick = () => removePlayer(i);
     row.innerHTML = `<span class="player-index">${i + 1}</span>`;
-    row.appendChild(orderControls);
+    row.appendChild(dragBtn);
     row.appendChild(input);
     row.appendChild(delBtn);
     list.appendChild(row);
   }
 }
 
-function reorderPlayerNames(fromIdx, targetIdx) {
+function reorderPlayerNames(fromIdx, targetIdx, sourceNames = ST.playerNames) {
   if (!Number.isInteger(fromIdx) || !Number.isInteger(targetIdx) || fromIdx === targetIdx) return;
   if (targetIdx < 0 || targetIdx >= ST.playerCount) return;
-  const names = [...ST.playerNames];
+  const names = [...sourceNames];
   while (names.length < ST.playerCount) names.push('');
   const [moved] = names.splice(fromIdx, 1);
   names.splice(targetIdx, 0, moved);
@@ -241,8 +241,66 @@ function reorderPlayerNames(fromIdx, targetIdx) {
   renderPlayerNames();
 }
 
-function movePlayer(idx, direction) {
-  reorderPlayerNames(idx, idx + direction);
+function targetPlayerIndexFromY(y) {
+  const rows = [...document.querySelectorAll('.player-name-row')];
+  const centers = rows.map(row => {
+    const rect = row.getBoundingClientRect();
+    return rect.top + rect.height / 2;
+  });
+  return centers.reduce((closest, center, i) =>
+    Math.abs(center - y) < Math.abs(centers[closest] - y) ? i : closest, 0);
+}
+
+function syncPlayerNamesFromInputs() {
+  document.querySelectorAll('.name-input').forEach((input, i) => {
+    ST.playerNames[i] = input.value;
+  });
+}
+
+function startPlayerReorder(e, idx) {
+  e.preventDefault();
+  syncPlayerNamesFromInputs();
+  const row = document.querySelector(`.player-name-row[data-index="${idx}"]`);
+  playerDrag = { fromIdx: idx, targetIdx: idx, moved: false, startY: e.clientY, names: [...ST.playerNames] };
+  row?.classList.add('dragging');
+  e.currentTarget.setPointerCapture?.(e.pointerId);
+  e.currentTarget.onpointermove = movePlayerReorder;
+  e.currentTarget.onpointerup = endPlayerReorder;
+  e.currentTarget.onpointercancel = cancelPlayerReorder;
+}
+
+function movePlayerReorder(e) {
+  if (!playerDrag) return;
+  if (Math.abs(e.clientY - playerDrag.startY) > 4) playerDrag.moved = true;
+  playerDrag.targetIdx = targetPlayerIndexFromY(e.clientY);
+  document.querySelectorAll('.player-name-row').forEach(row =>
+    row.classList.toggle('drag-target', Number(row.dataset.index) === playerDrag.targetIdx)
+  );
+}
+
+function clearPlayerReorder(handle) {
+  if (handle) {
+    handle.onpointermove = null;
+    handle.onpointerup = null;
+    handle.onpointercancel = null;
+  }
+  playerDrag = null;
+  document.querySelectorAll('.player-name-row').forEach(row => row.classList.remove('dragging', 'drag-target'));
+}
+
+function endPlayerReorder(e) {
+  const drag = playerDrag;
+  e.currentTarget.releasePointerCapture?.(e.pointerId);
+  clearPlayerReorder(e.currentTarget);
+  if (drag?.moved) {
+    syncPlayerNamesFromInputs();
+    reorderPlayerNames(drag.fromIdx, drag.targetIdx, drag.names);
+  }
+}
+
+function cancelPlayerReorder(e) {
+  e.currentTarget.releasePointerCapture?.(e.pointerId);
+  clearPlayerReorder(e.currentTarget);
 }
 
 function adjustPlayers(d) {
