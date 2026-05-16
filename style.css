@@ -698,6 +698,29 @@ body.has-bottom-nav {
   color: var(--text);
 }
 
+/* Starter */
+.screen#screen-starter {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.screen#screen-starter.active {
+  display: flex;
+}
+
+.starter-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: var(--spacing-4xl) var(--spacing-2xl);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: cardEnter 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
+  width: 100%;
+}
+
 /* Civilian Eliminated */
 .screen#screen-civilian-elim {
   display: none;
@@ -1466,6 +1489,7 @@ body.has-bottom-nav {
 /* Game screens fill available height so cards appear centered */
 #screen-cover.active,
 #screen-reveal.active,
+#screen-starter.active,
 #screen-vote.active,
 #screen-civilian-elim.active,
 #screen-mrwhite-guess.active,

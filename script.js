@@ -128,6 +128,13 @@ function updateBottomNav(screenId) {
     `;
     nav.appendChild(group);
     document.getElementById('bottom-nav').classList.add('active');
+  } else if (screenId === 'starter') {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary';
+    btn.textContent = 'Vai alla votazione →';
+    btn.id = 'btn-go-vote';
+    nav.appendChild(btn);
+    document.getElementById('bottom-nav').classList.add('active');
   } else if (screenId === 'civilian-elim') {
     const btn = document.createElement('button');
     btn.className = 'btn btn-primary';
@@ -174,6 +181,7 @@ function attachBottomNavListeners() {
   const listeners = {
     'btn-reveal': revealRole,
     'btn-next-player': nextPlayer,
+    'btn-go-vote': showVoteScreen,
     'btn-show-roles-exit': showRolesAndExit,
     'btn-confirm-vote': confirmVote,
     'btn-continue-civilian': continueAfterCivilian,
@@ -874,9 +882,25 @@ function nextPlayer() {
   setTimeout(() => {
     card.style.animation = '';
     ST.currentPlayerIndex++;
-    if (ST.currentPlayerIndex >= ST.playerCount) showVoteScreen();
+    if (ST.currentPlayerIndex >= ST.playerCount) showStarterScreen();
     else showCover();
   }, 210);
+}
+
+function pickStartingPlayer() {
+  const candidates = ST.players.filter(p => p.role !== 'mrwhite');
+  const pool = candidates.length ? candidates : ST.players;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function showStarterScreen() {
+  const starter = pickStartingPlayer();
+  document.getElementById('starter-card').innerHTML = `
+    <div class="result-emoji">🎤</div>
+    <div class="result-title">Parte ${starter.name}</div>
+    <div class="result-sub">Apri la discussione con il primo indizio.</div>
+  `;
+  showScreen('starter');
 }
 
 function showVoteScreen() {
