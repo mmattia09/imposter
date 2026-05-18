@@ -229,6 +229,7 @@ function renderPlayerNames() {
     dragBtn.type = 'button';
     dragBtn.textContent = '☰';
     dragBtn.title = 'Trascina per riordinare';
+    dragBtn.setAttribute('aria-label', 'Riordina ' + (ST.playerNames[i]?.trim() || 'Giocatore ' + (i + 1)));
     dragBtn.onpointerdown = e => startPlayerReorder(e, i);
     const input = document.createElement('input');
     input.className = 'name-input';
@@ -247,6 +248,7 @@ function renderPlayerNames() {
     delBtn.type = 'button';
     delBtn.textContent = '×';
     delBtn.title = 'Rimuovi nome';
+    delBtn.setAttribute('aria-label', 'Rimuovi ' + (ST.playerNames[i]?.trim() || 'Giocatore ' + (i + 1)));
     delBtn.onclick = () => removePlayer(i);
     row.innerHTML = `<span class="player-index">${i + 1}</span>`;
     row.appendChild(dragBtn);
@@ -338,6 +340,8 @@ function adjustPlayers(d) {
 }
 
 function removePlayer(idx) {
+  const label = (ST.playerNames[idx] || '').trim() || 'Giocatore ' + (idx + 1);
+  if (!confirm('Rimuovere ' + label + '?')) return;
   if (ST.playerCount <= 3) {
     ST.playerNames[idx] = '';
   } else {
@@ -370,11 +374,34 @@ function clampRoles() {
   if (ST.impostorCount + ST.mrWhiteCount === 0) ST.impostorCount = 1;
   document.getElementById('impostor-count').textContent = ST.impostorCount;
   document.getElementById('mrwhite-count').textContent = ST.mrWhiteCount;
+  updateStepperStates();
 }
 
 function toggleHints() {
   ST.hintsEnabled = !ST.hintsEnabled;
-  document.getElementById('toggle-hints').classList.toggle('on', ST.hintsEnabled);
+  updateHintsToggle();
+}
+
+function updateHintsToggle() {
+  const toggle = document.getElementById('toggle-hints');
+  toggle.classList.toggle('on', ST.hintsEnabled);
+  toggle.setAttribute('aria-checked', String(ST.hintsEnabled));
+}
+
+function updateStepperStates() {
+  const maxRoles = ST.playerCount - 1;
+  const controls = [
+    ['btn-players-minus', ST.playerCount <= 3],
+    ['btn-players-plus', ST.playerCount >= 12],
+    ['btn-impostors-minus', ST.impostorCount <= 0 || ST.impostorCount + ST.mrWhiteCount <= 1],
+    ['btn-impostors-plus', ST.impostorCount + ST.mrWhiteCount >= maxRoles],
+    ['btn-mrwhites-minus', ST.mrWhiteCount <= 0],
+    ['btn-mrwhites-plus', ST.impostorCount + ST.mrWhiteCount >= maxRoles]
+  ];
+  controls.forEach(([id, disabled]) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = disabled;
+  });
 }
 
 function renderHomePills() {
@@ -385,6 +412,8 @@ function renderHomePills() {
     const sel = ST.selectedPackIds.has(p.id);
     const btn = document.createElement('button');
     btn.className = 'packet-pill';
+    btn.type = 'button';
+    btn.setAttribute('aria-pressed', String(sel));
     if (sel) {
       btn.style.cssText = `border-color:${c.hex};background:${c.hex}26;color:${getPacketTextColor(c)};`;
     }
@@ -396,7 +425,10 @@ function renderHomePills() {
 
 function toggleHomePack(id) {
   if (ST.selectedPackIds.has(id)) {
-    if (ST.selectedPackIds.size === 1) return;
+    if (ST.selectedPackIds.size === 1) {
+      alert('Seleziona almeno un pacchetto parole.');
+      return;
+    }
     ST.selectedPackIds.delete(id);
   } else {
     ST.selectedPackIds.add(id);
@@ -936,7 +968,16 @@ function showVoteScreen() {
     const div = document.createElement('div');
     div.className = 'player-vote-item';
     div.id = 'vi-' + i;
+    div.tabIndex = 0;
+    div.setAttribute('role', 'button');
+    div.setAttribute('aria-pressed', 'false');
     div.onclick = () => selectVote(i);
+    div.onkeydown = e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectVote(i);
+      }
+    };
     div.innerHTML = `<span class="player-vote-name">${escapeHTML(p.name)}</span><div class="vote-check" id="vc-${i}"></div>`;
     list.appendChild(div);
   });
@@ -945,8 +986,10 @@ function showVoteScreen() {
 
 function selectVote(idx) {
   document.querySelectorAll('.player-vote-item').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.player-vote-item').forEach(el => el.setAttribute('aria-pressed', 'false'));
   document.querySelectorAll('.vote-check').forEach(el => el.textContent = '');
   document.getElementById('vi-' + idx).classList.add('selected');
+  document.getElementById('vi-' + idx).setAttribute('aria-pressed', 'true');
   document.getElementById('vc-' + idx).textContent = '✓';
   ST.votedOut = idx;
 }
@@ -1060,6 +1103,15 @@ document.getElementById('btn-settings-back').onclick = () => {
   renderHomePills();
 };
 document.getElementById('btn-export-all').onclick = exportAllPackets;
+const importBtn = document.getElementById('btn-import');
+if (importBtn) {
+  importBtn.onkeydown = e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      document.getElementById('file-import').click();
+    }
+  };
+}
 document.getElementById('btn-ai-packet').onclick = openAIPacketModal;
 document.getElementById('btn-ai-close').onclick = closeAIPacketModal;
 document.getElementById('ai-pack-modal').onclick = e => {
@@ -1078,7 +1130,10 @@ function isDarkMode() {
 
 function updateThemeBtn() {
   const btn = document.getElementById('btn-theme');
-  if (btn) btn.textContent = isDarkMode() ? '☀️' : '🌙';
+  if (btn) {
+    btn.textContent = isDarkMode() ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', isDarkMode() ? 'Passa al tema chiaro' : 'Passa al tema scuro');
+  }
 }
 
 function toggleTheme() {
@@ -1135,6 +1190,8 @@ async function init() {
   loadPackets(defaults);
   ST.selectedPackIds.add(packets[0]?.id || 'easy');
   updateThemeBtn();
+  updateHintsToggle();
+  updateStepperStates();
   renderPlayerNames();
   renderHomePills();
 }

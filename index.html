@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Impostore</title>
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
   <script>
     (function() {
       var t = localStorage.getItem('imp_theme') ||
@@ -25,12 +25,12 @@
       <div class="card">
         <div class="card-title">Giocatori</div>
         <div class="stepper">
-          <button class="step-btn" id="btn-players-minus">−</button>
+          <button class="step-btn" id="btn-players-minus" type="button" aria-label="Diminuisci numero giocatori">−</button>
           <div>
             <div class="step-value" id="player-count">5</div>
             <div class="step-label">giocatori</div>
           </div>
-          <button class="step-btn" id="btn-players-plus">+</button>
+          <button class="step-btn" id="btn-players-plus" type="button" aria-label="Aumenta numero giocatori">+</button>
         </div>
         <div class="player-name-list" id="player-name-list"></div>
       </div>
@@ -39,23 +39,23 @@
         <div class="roles-grid">
           <div class="role-col-l">
             <div class="stepper">
-              <button class="step-btn" id="btn-impostors-minus">−</button>
+              <button class="step-btn" id="btn-impostors-minus" type="button" aria-label="Diminuisci numero impostori">−</button>
               <div>
                 <div class="step-value" id="impostor-count">1</div>
                 <div class="step-label">impostori</div>
               </div>
-              <button class="step-btn" id="btn-impostors-plus">+</button>
+              <button class="step-btn" id="btn-impostors-plus" type="button" aria-label="Aumenta numero impostori">+</button>
             </div>
           </div>
           <div class="roles-divider"></div>
           <div class="role-col-r">
             <div class="stepper">
-              <button class="step-btn" id="btn-mrwhites-minus">−</button>
+              <button class="step-btn" id="btn-mrwhites-minus" type="button" aria-label="Diminuisci numero Mr. White">−</button>
               <div>
                 <div class="step-value" id="mrwhite-count">0</div>
                 <div class="step-label">Mr. White</div>
               </div>
-              <button class="step-btn" id="btn-mrwhites-plus">+</button>
+              <button class="step-btn" id="btn-mrwhites-plus" type="button" aria-label="Aumenta numero Mr. White">+</button>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@
             <h3>Indizi agli impostori</h3>
             <p>Ogni impostore riceve 1 indizio</p>
           </div>
-          <button class="toggle on" id="toggle-hints"></button>
+          <button class="toggle on" id="toggle-hints" type="button" role="switch" aria-label="Indizi agli impostori" aria-checked="true"></button>
         </div>
       </div>
       <div class="card">
@@ -73,7 +73,7 @@
         <div class="packet-grid" id="home-packet-grid"></div>
       </div>
       <div class="start-row">
-        <button class="settings-gear" id="btn-settings">⚙️</button>
+        <button class="settings-gear" id="btn-settings" type="button" aria-label="Apri impostazioni pacchetti">⚙️</button>
         <button class="btn btn-primary" id="btn-start" style="flex: 1;">Inizia la partita</button>
       </div>
     </div>
@@ -91,7 +91,7 @@
       </div>
       <div class="sa-row">
         <button class="sa-btn" id="btn-export-all">⬆ Esporta tutti</button>
-        <label class="sa-btn" style="cursor: pointer;">
+        <label class="sa-btn" id="btn-import" role="button" tabindex="0" aria-label="Importa pacchetti JSON" style="cursor: pointer;">
           ⬇ Importa
           <input type="file" id="file-import" accept=".json" style="display: none;">
         </label>
@@ -231,6 +231,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=13"></script>
+  <script src="script.js?v=14"></script>
 </body>
 </html>

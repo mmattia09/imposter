@@ -173,6 +173,15 @@ body.has-bottom-nav {
   font-family: inherit;
 }
 
+.step-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.step-btn:disabled:hover {
+  background: var(--surface2);
+}
+
 .step-btn:hover {
   background: var(--surface3);
 }
@@ -314,6 +323,9 @@ body.has-bottom-nav {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .packet-pill:active {
@@ -396,6 +408,7 @@ body.has-bottom-nav {
   color: var(--text);
   outline: none;
   transition: border-color 0.15s, background 0.15s;
+  min-width: 0;
 }
 
 .name-input:focus {
@@ -665,6 +678,8 @@ body.has-bottom-nav {
   color: var(--text);
   letter-spacing: -0.8px;
   margin-top: var(--spacing-lg);
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .role-sub {
@@ -696,6 +711,7 @@ body.has-bottom-nav {
   font-size: 22px;
   font-weight: 700;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 /* Starter */
@@ -761,15 +777,11 @@ body.has-bottom-nav {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
 }
 
 #screen-vote .nav-row {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   justify-content: center;
 }
 
@@ -796,6 +808,7 @@ body.has-bottom-nav {
   transition: all 0.15s;
   user-select: none;
   min-height: 48px;
+  gap: var(--spacing-md);
 }
 
 .player-vote-item:hover {
@@ -811,6 +824,8 @@ body.has-bottom-nav {
 .player-vote-name {
   font-size: 16px;
   font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .vote-check {
@@ -883,6 +898,7 @@ body.has-bottom-nav {
   padding: var(--spacing-md) 0;
   border-bottom: 1px solid var(--border);
   font-size: 15px;
+  gap: var(--spacing-md);
 }
 
 .info-row:last-child {
@@ -895,6 +911,9 @@ body.has-bottom-nav {
 
 .info-row span:last-child {
   font-weight: 600;
+  min-width: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .tag-i {
@@ -968,6 +987,10 @@ body.has-bottom-nav {
 .pname {
   font-size: 15px;
   font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pcount {
@@ -988,15 +1011,14 @@ body.has-bottom-nav {
 }
 
 .packet-body {
-  max-height: 0;
-  overflow: hidden;
+  display: none;
+  overflow: visible;
   padding: 0 var(--spacing-lg);
-  transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-              padding 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: padding 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .packet-body.open {
-  max-height: 800px;
+  display: block;
   padding-bottom: var(--spacing-lg);
 }
 
@@ -1500,4 +1522,14 @@ body.has-bottom-nav {
 
 #packet-editors {
   margin-bottom: var(--spacing-lg);
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.sa-btn:focus-visible,
+.player-vote-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
