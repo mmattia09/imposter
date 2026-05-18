@@ -42,7 +42,26 @@ const DEFAULT_PACKET_FILES = [
 ];
 
 function normalizePacket(p) {
-  return { ...p, lines: Array.isArray(p.lines) ? [...p.lines] : [] };
+  return { ...p, id: safePacketId(p.id), lines: Array.isArray(p.lines) ? [...p.lines] : [] };
+}
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
+function safePacketId(id) {
+  const safe = String(id ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return safe || 'packet';
 }
 
 function loadPackets(defaults) {
@@ -369,7 +388,7 @@ function renderHomePills() {
     if (sel) {
       btn.style.cssText = `border-color:${c.hex};background:${c.hex}26;color:${getPacketTextColor(c)};`;
     }
-    btn.innerHTML = `<span class="dot" style="background:${sel ? c.hex : 'var(--text3)'};"></span>${p.emoji} ${p.label}`;
+    btn.innerHTML = `<span class="dot" style="background:${sel ? c.hex : 'var(--text3)'};"></span>${escapeHTML(p.emoji)} ${escapeHTML(p.label)}`;
     btn.onclick = () => toggleHomePack(p.id);
     g.appendChild(btn);
   });
@@ -411,30 +430,33 @@ function buildPacketEditors() {
 function buildEditor(p) {
   const c = getColor(p);
   const isBuiltIn = ['easy', 'medium', 'hard', 'custom'].includes(p.id);
+  const label = escapeHTML(p.label);
+  const emoji = escapeHTML(p.emoji);
+  const id = escapeHTML(p.id);
   const div = document.createElement('div');
   div.className = 'packet-item';
   div.id = 'pe-' + p.id;
   const linesCount = p.lines.filter(l => l.trim()).length;
-  div.innerHTML = `<div class="packet-header" onclick="togglePE('${p.id}')">
-    <div class="ph-left"><div class="pdot" style="background:${c.hex};"></div><span class="pname">${p.emoji} ${p.label}</span><span class="pcount" id="pc-${p.id}">${linesCount} voci</span></div>
-    <span class="pchev" id="pch-${p.id}">▾</span>
+  div.innerHTML = `<div class="packet-header" onclick="togglePE('${id}')">
+    <div class="ph-left"><div class="pdot" style="background:${c.hex};"></div><span class="pname">${emoji} ${label}</span><span class="pcount" id="pc-${id}">${linesCount} voci</span></div>
+    <span class="pchev" id="pch-${id}">▾</span>
   </div>
-  <div class="packet-body" id="pb-${p.id}">
+  <div class="packet-body" id="pb-${id}">
     <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
-      <button class="emoji-btn" id="eb-${p.id}" onclick="toggleEP('${p.id}')">${p.emoji}</button>
-      <input class="packet-name-input" id="pni-${p.id}" value="${p.label.replace(/"/g, '&quot;')}" placeholder="Nome pacchetto" oninput="updatePName('${p.id}',this.value)">
+      <button class="emoji-btn" id="eb-${id}" onclick="toggleEP('${id}')">${emoji}</button>
+      <input class="packet-name-input" id="pni-${id}" value="${label}" placeholder="Nome pacchetto" oninput="updatePName('${id}',this.value)">
     </div>
-    <div class="ep-panel" id="epp-${p.id}">
+    <div class="ep-panel" id="epp-${id}">
       <div class="ep-section-label">Icona</div>
-      <div class="emoji-picker">${EMOJIS.map((em) => `<button class="ep-opt${em === p.emoji ? ' sel' : ''}" onclick="pickEmoji('${p.id}','${em}')">${em}</button>`).join('')}</div>
+      <div class="emoji-picker">${EMOJIS.map((em) => `<button class="ep-opt${em === p.emoji ? ' sel' : ''}" onclick="pickEmoji('${id}','${em}')">${em}</button>`).join('')}</div>
       <div class="ep-section-label">Colore</div>
-      <div class="color-picker">${COLORS.map((cc, ci) => `<div class="cp-opt${ci === p.colorIdx ? ' sel' : ''}" style="background:${cc.hex};" onclick="pickColor('${p.id}',${ci})"></div>`).join('')}</div>
+      <div class="color-picker">${COLORS.map((cc, ci) => `<div class="cp-opt${ci === p.colorIdx ? ' sel' : ''}" style="background:${cc.hex};" onclick="pickColor('${id}',${ci})"></div>`).join('')}</div>
     </div>
-    <textarea class="packet-textarea" id="pta-${p.id}" spellcheck="false" placeholder="pizza,rotonda,mozzarella,Napoli,italiana&#10;gelato,freddo,cono,estate,artigianale">${p.lines.join('\n')}</textarea>
+    <textarea class="packet-textarea" id="pta-${id}" spellcheck="false" placeholder="pizza,rotonda,mozzarella,Napoli,italiana&#10;gelato,freddo,cono,estate,artigianale">${escapeHTML(p.lines.join('\n'))}</textarea>
     <div class="btn-row">
-      <button class="psave" onclick="savePacket('${p.id}',this)">Salva</button>
-      <button class="psave pgray" onclick="exportOne('${p.id}')" title="Esporta">⬆</button>
-      ${!isBuiltIn ? `<button class="pdel" onclick="delPacket('${p.id}')">Elimina</button>` : ''}
+      <button class="psave" onclick="savePacket('${id}',this)">Salva</button>
+      <button class="psave pgray" onclick="exportOne('${id}')" title="Esporta">⬆</button>
+      ${!isBuiltIn ? `<button class="pdel" onclick="delPacket('${id}')">Elimina</button>` : ''}
     </div>
   </div>`;
   return div;
@@ -748,10 +770,11 @@ function importPackets(e) {
       if (!Array.isArray(arr)) arr = [arr];
       arr.forEach(p => {
         if (!p.id || !p.label || !Array.isArray(p.lines)) return;
+        p.id = safePacketId(p.id);
         if (packets.find(x => x.id === p.id)) p.id = p.id + '_' + Date.now();
         if (p.colorIdx === undefined) p.colorIdx = 3;
         if (!p.emoji) p.emoji = '📦';
-        packets.push(p);
+        packets.push(normalizePacket(p));
       });
       savePackets();
       buildPacketEditors();
@@ -856,14 +879,14 @@ function revealRole() {
   const idx = ST.currentPlayerIndex;
   const p = ST.players[idx];
   const pct = playerPct();
-  let html = `<div class="player-number">${p.name}</div>`;
+  let html = `<div class="player-number">${escapeHTML(p.name)}</div>`;
   if (p.role === 'civilian') {
-    html += `<div class="role-icon civilian">🟢</div><div class="role-badge civilian">Civile</div><div class="role-word">${ST.secretWord}</div><p class="role-sub">Questa è la tua parola. Difendila senza rivelarla!</p>`;
+    html += `<div class="role-icon civilian">🟢</div><div class="role-badge civilian">Civile</div><div class="role-word">${escapeHTML(ST.secretWord)}</div><p class="role-sub">Questa è la tua parola. Difendila senza rivelarla!</p>`;
   } else if (p.role === 'impostor') {
     html += `<div class="role-icon impostor">🔴</div><div class="role-badge impostor">Impostore</div><div class="role-word">???</div><p class="role-sub">Non conosci la parola. Fingila bene!</p>`;
     if (ST.hintsEnabled && ST.secretWordHints.length > 0) {
       const h = ST.secretWordHints[(p.hintIndex ?? 0) % ST.secretWordHints.length];
-      html += `<div class="hint-solo"><div class="hint-label">💡 Il tuo indizio</div><div class="hint-text">${h}</div></div>`;
+      html += `<div class="hint-solo"><div class="hint-label">💡 Il tuo indizio</div><div class="hint-text">${escapeHTML(h)}</div></div>`;
     }
   } else {
     html += `<div class="role-icon mrwhite">⚪️</div><div class="role-badge mrwhite">Mr. White</div><div class="role-word">???</div><p class="role-sub">Non hai parola né indizi. Ascolta tutti e prova a indovinare se vieni eliminato!</p>`;
@@ -898,7 +921,7 @@ function showStarterScreen() {
   const starter = pickStartingPlayer();
   document.getElementById('starter-card').innerHTML = `
     <div class="result-emoji">🎤</div>
-    <div class="result-title">Parte ${starter.name}</div>
+    <div class="result-title">Parte ${escapeHTML(starter.name)}</div>
     <div class="result-sub">Apri la discussione con il primo indizio.</div>
   `;
   showScreen('starter');
@@ -914,7 +937,7 @@ function showVoteScreen() {
     div.className = 'player-vote-item';
     div.id = 'vi-' + i;
     div.onclick = () => selectVote(i);
-    div.innerHTML = `<span class="player-vote-name">${p.name}</span><div class="vote-check" id="vc-${i}"></div>`;
+    div.innerHTML = `<span class="player-vote-name">${escapeHTML(p.name)}</span><div class="vote-check" id="vc-${i}"></div>`;
     list.appendChild(div);
   });
   showScreen('vote');
@@ -984,9 +1007,9 @@ function buildRoleSummaryRows() {
   const iN = ST.players.filter(p => p.role === 'impostor').map(p => p.name).join(', ');
   const mwN = ST.players.filter(p => p.role === 'mrwhite').map(p => p.name).join(', ');
 
-  let infoRows = `<div class="info-row"><span>Parola segreta</span><span><strong>${ST.secretWord}</strong></span></div>
-    <div class="info-row"><span>Impostori</span><span class="tag-i">${iN || '—'}</span></div>`;
-  if (mwN) infoRows += `<div class="info-row"><span>Mr. White</span><span class="tag-mw">${mwN}</span></div>`;
+  let infoRows = `<div class="info-row"><span>Parola segreta</span><span><strong>${escapeHTML(ST.secretWord)}</strong></span></div>
+    <div class="info-row"><span>Impostori</span><span class="tag-i">${escapeHTML(iN || '—')}</span></div>`;
+  if (mwN) infoRows += `<div class="info-row"><span>Mr. White</span><span class="tag-mw">${escapeHTML(mwN)}</span></div>`;
   return infoRows;
 }
 
