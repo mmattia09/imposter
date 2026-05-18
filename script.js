@@ -343,10 +343,11 @@ function adjustMrWhites(d) {
 
 function clampRoles() {
   const max = ST.playerCount - 1;
+  ST.mrWhiteCount = Math.min(Math.max(0, ST.mrWhiteCount), max);
   if (ST.impostorCount + ST.mrWhiteCount > max) {
     ST.impostorCount = Math.max(0, max - ST.mrWhiteCount);
   }
-  if (ST.impostorCount < 0) ST.impostorCount = 0;
+  ST.impostorCount = Math.min(Math.max(0, ST.impostorCount), max - ST.mrWhiteCount);
   if (ST.impostorCount + ST.mrWhiteCount === 0) ST.impostorCount = 1;
   document.getElementById('impostor-count').textContent = ST.impostorCount;
   document.getElementById('mrwhite-count').textContent = ST.mrWhiteCount;
