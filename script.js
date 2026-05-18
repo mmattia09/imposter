@@ -803,7 +803,7 @@ function buildPlayers() {
   let slot = 0;
   ST.players = roles.map((role, i) => {
     const name = (ST.playerNames[i] || '').trim() || `Giocatore ${i + 1}`;
-    const hintIndex = role === 'impostor' ? (slot++ % 3) : null;
+    const hintIndex = role === 'impostor' ? slot++ : null;
     return { name, role, eliminated: false, hintIndex };
   });
   ST.currentPlayerIndex = 0;
